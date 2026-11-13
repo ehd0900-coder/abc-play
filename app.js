@@ -1,7 +1,7 @@
 (function () {
   "use strict";
   var C = window.CONTENT, EBS = C.EBS, CHANT = C.CHANT, PIC = C.PIC, DAYS = C.DAYS, UP = C.UP, LOW = C.LOW, ML = C.ML, MR = C.MR, DICT = C.DICT, FIRST = C.FIRST, REVIEW = C.REVIEW, CVC = C.CVC, SIGHT = C.SIGHT, STEPS = C.STEPS;
-  var URL0 = "https://claude.ai/artifact/1sgjHBjBPGhcN2Es7tNcj9";
+  var URL0 = "https://ehd0900-coder.github.io/abc-play/";
 
   var mem = { done: {}, diag: null, stars: 0 };
   try { var raw = localStorage.getItem("haeun-eng"); if (raw) mem = Object.assign(mem, JSON.parse(raw)); } catch (e) {}
