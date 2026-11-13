@@ -9,6 +9,7 @@ index.html        뼈대
 style.css         스타일
 app.js            화면·동작
 data/content.js   내용 (요일별 할 일, 진단 문항, 복습 글자, 그림 단어, 강의 주소)
+img/              친구들 그림 (꾸밈용, 배경 투명 PNG)
 ```
 
 ## 내용 고치는 법

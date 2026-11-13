@@ -35,6 +35,9 @@
   }
   function go(v) { ui.view = v; ui.sub = null; try { location.hash = v === "home" ? "" : v; } catch (e) {} render(); }
   function top(title, right) { return '<div class="top"><h1>' + title + "</h1>" + (right || "") + "</div>"; }
+  /* 친구들 그림. 꾸밈용이라 alt 는 비운다. */
+  var PALS = { dog: [312, 440], bear: [284, 440], cat: [289, 440], hamster: [357, 440], friends: [900, 381] };
+  function pal(n, cls) { return '<img class="pal ' + cls + '" src="img/' + n + '.png" width="' + PALS[n][0] + '" height="' + PALS[n][1] + '" alt="" draggable="false">'; }
   var HOMEBTN = '<button class="pill" data-a="home">처음으로</button>';
 
   /* ---------- 홈 ---------- */
@@ -47,8 +50,8 @@
     }).join("");
     var si = sndInfo(), warn = (si.inapp || !si.has) ? '<div class="warnbox"><b>소리가 안 나오는 화면입니다.</b> 카카오톡 같은 앱 안에서 열면 소리가 막힙니다. 주소를 복사해 크롬이나 삼성 인터넷에 붙여 열어 주세요. <button class="small" data-a="cplink">주소 복사</button> <span class="abc" style="font-size:13px;word-break:break-all">' + URL0 + "</span></div>" : "";
     var sndRow = '<p class="hint"><button class="small" data-a="snd">소리 점검</button> ' + (ui.snd ? esc(ui.snd) : "눌러서 이 태블릿에서 영어 소리가 나오는지 확인해요.") + "</p>";
-    return top("하은이의 영어 놀이", '<span class="pill">이번 주 글자 <span class="letters">' + D.L.toUpperCase().split("").join(" ") + "</span></span>") +
-      warn + '<div class="week">' + week + '</div><div class="stage"><div class="pad"><div class="steps">' + steps + (allDone(ui.day) ? '<div class="stamp">참 잘했어요!</div>' : "") +
+    return top("하은이의 영어 놀이", pal("friends", "pals") + '<span class="pill">이번 주 글자 <span class="letters">' + D.L.toUpperCase().split("").join(" ") + "</span></span>") +
+      warn + '<div class="week">' + week + '</div><div class="stage"><div class="pad"><div class="steps">' + steps + (allDone(ui.day) ? '<div class="yay">' + pal("dog", "pal-sm hop") + '<div class="stamp">참 잘했어요!</div></div>' : "") +
       '</div><p class="hint">다 한 것은 동그라미를 눌러 표시해요. 강의는 EBS 화면이 새로 열려요. 로그인한 뒤 강의목록에서 오늘 강의의 “강의보기”를 눌러 주세요.</p>' + sndRow + "</div></div>";
   }
 
@@ -56,11 +59,11 @@
   function newDiag() { mem.diag = { s: 0, i: -1, res: {}, done: false }; save(); }
   function diag() {
     var g = mem.diag;
-    if (!g) return top("글자 탐험", HOMEBTN) + '<div class="stage"><div class="center"><p style="font-family:var(--f-display);font-size:30px;margin:0">글자를 얼마나 아는지 같이 볼까요?</p><p class="hint">15~20분 · 부모님이 옆에서 버튼을 눌러 줍니다.<br>힌트 없이, 틀려도 고쳐주지 않고, 3초 기다려 답이 없으면 넘어갑니다.<br>지치면 “오늘은 여기까지”를 누르세요. 다음에 이어서 할 수 있습니다.</p></div><div class="bar"><button class="big sun" data-a="dstart">시작하기</button></div></div>';
+    if (!g) return top("글자 탐험", HOMEBTN) + '<div class="stage"><div class="center">' + pal("bear", "pal-lg") + '<p style="font-family:var(--f-display);font-size:30px;margin:0">글자를 얼마나 아는지 같이 볼까요?</p><p class="hint">15~20분 · 부모님이 옆에서 버튼을 눌러 줍니다.<br>힌트 없이, 틀려도 고쳐주지 않고, 3초 기다려 답이 없으면 넘어갑니다.<br>지치면 “오늘은 여기까지”를 누르세요. 다음에 이어서 할 수 있습니다.</p></div><div class="bar"><button class="big sun" data-a="dstart">시작하기</button></div></div>';
     if (g.done) return result();
     var S = STEPS[g.s], dots = '<div class="dots">' + STEPS.map(function (_, i) { return '<i class="' + (i < g.s ? "ok" : i === g.s ? "on" : "") + '"></i>'; }).join("") + "</div>";
     var head = top(S.t, dots + '<button class="pill" data-a="dpause">오늘은 여기까지</button>');
-    if (g.i < 0) return head + '<div class="stage"><div class="center"><p class="parent">부모님께</p><p style="font-size:22px;max-width:30em;margin:0">' + S.say + '</p></div><div class="bar">' + (g.s > 0 ? "" : "") + '<button class="big sun" data-a="dgo">' + S.t + " 시작</button></div></div>";
+    if (g.i < 0) return head + '<div class="stage"><div class="center">' + pal("bear", "pal-md") + '<p class="parent">부모님께</p><p style="font-size:22px;max-width:30em;margin:0">' + S.say + '</p></div><div class="bar">' + (g.s > 0 ? "" : "") + '<button class="big sun" data-a="dgo">' + S.t + " 시작</button></div></div>";
     var r = g.res[S.id] || (g.res[S.id] = []);
     if (S.type === "judge") {
       var miss = 0; for (var k = g.i - 1; k >= 0 && r[k] === false; k--) miss++;
@@ -117,15 +120,15 @@
   function play() {
     var L = DAYS[ui.day].L.split(""), p = ui.sub;
     if (!p) return top("카드놀이", '<span class="stars">★ ' + mem.stars + "</span>" + HOMEBTN) + '<div class="stage"><div class="pad"><p class="hint" style="margin-top:0">오늘 글자: <span class="letters">' + L.join(" ").toUpperCase() + '</span> · 하고 싶은 놀이를 하은이가 골라요.</p><div class="games">' +
-      '<button class="game" data-a="g" data-g="mem"><b>짝 찾기</b><span>카드를 뒤집어 큰 글자와 작은 글자 짝을 찾아요.</span></button>' +
-      '<button class="game" data-a="g" data-g="first"><b>첫소리 찾기</b><span>단어를 듣고 처음에 나는 소리 글자를 눌러요.</span></button>' +
-      '<button class="game" data-a="g" data-g="teach"><b>선생님 놀이</b><span>하은이가 글자 소리를 내고, 엄마 아빠가 따라 해요.</span></button>' +
-      '<button class="game" data-a="g" data-g="rev"><b>복습 글자</b><span>이름이 헷갈렸던 글자 10개를 다시 만나요.</span></button></div></div></div>';
+      '<button class="game" data-a="g" data-g="mem"><span class="gt"><b>짝 찾기</b><span>카드를 뒤집어 큰 글자와 작은 글자 짝을 찾아요.</span></span>' + pal("dog", "") + '</button>' +
+      '<button class="game" data-a="g" data-g="first"><span class="gt"><b>첫소리 찾기</b><span>단어를 듣고 처음에 나는 소리 글자를 눌러요.</span></span>' + pal("hamster", "") + '</button>' +
+      '<button class="game" data-a="g" data-g="teach"><span class="gt"><b>선생님 놀이</b><span>하은이가 글자 소리를 내고, 엄마 아빠가 따라 해요.</span></span>' + pal("bear", "") + '</button>' +
+      '<button class="game" data-a="g" data-g="rev"><span class="gt"><b>복습 글자</b><span>이름이 헷갈렸던 글자 10개를 다시 만나요.</span></span>' + pal("cat", "") + '</button></div></div></div>';
     var back = '<span class="stars">★ ' + mem.stars + '</span><button class="pill" data-a="play">놀이 고르기</button>';
     if (p.g === "mem") {
       var cols = p.cards.length <= 4 ? 2 : p.cards.length <= 8 ? 4 : p.cards.length <= 12 ? 4 : 4;
       var all = p.cards.every(function (c) { return c.ok; });
-      return top("짝 찾기", back) + '<div class="stage"><div class="mem" style="grid-template-columns:repeat(' + cols + ',auto)">' + p.cards.map(function (c, i) { return '<button class="mc' + (c.ok ? " ok" : c.up ? " up" : "") + '" data-a="mc" data-i="' + i + '" aria-label="카드 ' + (i + 1) + '">' + c.ch + "</button>"; }).join("") + "</div>" + (all ? '<div class="bar"><span class="stamp" style="margin:0">다 찾았어요!</span><button class="big sun" data-a="g" data-g="mem">한 번 더</button></div>' : "") + "</div>";
+      return top("짝 찾기", back) + '<div class="stage"><div class="mem" style="grid-template-columns:repeat(' + cols + ',auto)">' + p.cards.map(function (c, i) { return '<button class="mc' + (c.ok ? " ok" : c.up ? " up" : "") + '" data-a="mc" data-i="' + i + '" aria-label="카드 ' + (i + 1) + '">' + c.ch + "</button>"; }).join("") + "</div>" + (all ? '<div class="bar">' + pal("dog", "pal-sm hop") + '<span class="stamp" style="margin:0">다 찾았어요!</span><button class="big sun" data-a="g" data-g="mem">한 번 더</button></div>' : "") + "</div>";
     }
     if (p.g === "first") {
       var q = p.q;
@@ -133,7 +136,7 @@
     }
     if (p.g === "teach") return top("선생님 놀이", back) + '<div class="stage"><div class="center"><div class="abc giant">' + p.ch + '</div><div class="hint">하은 선생님이 소리를 내면, 엄마 아빠가 따라 해요. 가끔 일부러 틀려 보세요.</div></div><div class="bar"><button class="big sun" data-a="tn">다음 글자</button></div></div>';
     if (p.g === "rev") {
-      if (!p.q.length) return top("복습 글자", back) + '<div class="stage"><div class="center"><span class="stamp">다 알아요!</span></div><div class="bar"><button class="big sun" data-a="g" data-g="rev">한 번 더</button></div></div>';
+      if (!p.q.length) return top("복습 글자", back) + '<div class="stage"><div class="center">' + pal("dog", "pal-lg hop") + '<span class="stamp">다 알아요!</span></div><div class="bar"><button class="big sun" data-a="g" data-g="rev">한 번 더</button></div></div>';
       var c = p.q[0];
       return top("복습 글자", back) + '<div class="stage"><div class="center"><div class="abc giant">' + c[0] + '</div><div style="font-family:var(--f-display);font-size:34px;min-height:1.5em">' + (p.show ? c[1] : "") + '</div><div class="hint">남은 글자 ' + p.q.length + "개 · 하은이가 이름을 말한 다음 정답을 확인해요.</div></div>" +
         '<div class="bar">' + (p.show ? '<button class="big no" data-a="ra">다음에 또</button><button class="big yes" data-a="rk">알았어요</button>' : '<button class="big sun" data-a="rv">정답 보기</button>') + "</div></div>";
@@ -157,7 +160,7 @@
     var cv = document.getElementById("cv"); if (cv) draw(cv);
   }
   function draw(cv) {
-    var x = cv.getContext("2d"), on = false; x.lineWidth = 12; x.lineCap = "round"; x.lineJoin = "round"; x.strokeStyle = "#14274a";
+    var x = cv.getContext("2d"), on = false; x.lineWidth = 12; x.lineCap = "round"; x.lineJoin = "round"; x.strokeStyle = "#2b2118";
     function pt(e) { var r = cv.getBoundingClientRect(); return [(e.clientX - r.left) * cv.width / r.width, (e.clientY - r.top) * cv.height / r.height]; }
     cv.addEventListener("pointerdown", function (e) { on = true; var p = pt(e); x.beginPath(); x.moveTo(p[0], p[1]); x.lineTo(p[0] + 0.1, p[1]); x.stroke(); e.preventDefault(); });
     cv.addEventListener("pointermove", function (e) { if (!on) return; var p = pt(e); x.lineTo(p[0], p[1]); x.stroke(); e.preventDefault(); });
