@@ -46,12 +46,12 @@
     var week = DAYS.map(function (d, i) { return '<button class="day' + (i === ui.day ? " on" : "") + (allDone(i) ? " done" : "") + '" data-a="day" data-i="' + i + '"><b>' + d.d + "</b><span>" + d.n + "</span></button>"; }).join("");
     var steps = D.steps.map(function (s, i) {
       var btn = s.link ? '<a class="do" href="' + s.link + '" target="_blank" rel="noopener">열기</a>' : s.act ? '<button class="do" data-a="' + s.act + '">시작</button>' : "";
-      return '<div class="step' + (done[i] ? " done" : "") + '"><button class="chk" data-a="chk" data-i="' + i + '" aria-label="' + esc(s.t) + ' 완료 표시">' + (done[i] ? "✓" : i + 1) + '</button><div class="txt"><b>' + s.t + "</b><span>" + s.m + "</span></div>" + btn + "</div>";
+      return '<div class="step rise' + (done[i] ? " done" : "") + '" style="animation-delay:' + (i * 70) + 'ms"><button class="chk" data-a="chk" data-i="' + i + '" aria-label="' + esc(s.t) + ' 완료 표시">' + (done[i] ? "✓" : i + 1) + '</button><div class="txt"><b>' + s.t + "</b><span>" + s.m + "</span></div>" + btn + "</div>";
     }).join("");
     var si = sndInfo(), warn = (si.inapp || !si.has) ? '<div class="warnbox"><b>소리가 안 나오는 화면입니다.</b> 카카오톡 같은 앱 안에서 열면 소리가 막힙니다. 주소를 복사해 크롬이나 삼성 인터넷에 붙여 열어 주세요. <button class="small" data-a="cplink">주소 복사</button> <span class="abc" style="font-size:13px;word-break:break-all">' + URL0 + "</span></div>" : "";
     var sndRow = '<p class="hint"><button class="small" data-a="snd">소리 점검</button> ' + (ui.snd ? esc(ui.snd) : "눌러서 이 태블릿에서 영어 소리가 나오는지 확인해요.") + "</p>";
     return top("하은이의 영어 놀이", pal("friends", "pals") + '<button class="pill go numgo" data-a="num">' + NT.title + '</button><span class="pill">이번 주 글자 <span class="letters">' + D.L.toUpperCase().split("").join(" ") + "</span></span>") +
-      warn + '<div class="week">' + week + '</div><div class="stage"><div class="pad"><div class="steps">' + steps + (allDone(ui.day) ? '<div class="yay">' + pal("dog", "pal-sm hop") + '<div class="stamp">참 잘했어요!</div></div>' : "") +
+      warn + '<div class="week">' + week + '</div><div class="stage"><div class="pad"><div class="steps">' + steps + (allDone(ui.day) ? '<div class="yay col">' + (once(ui, "fx") ? rain() + cheerFx() : "") + yayClip() + '<div class="stamp stampin">참 잘했어요!</div></div>' : "") +
       '</div><p class="hint">다 한 것은 동그라미를 눌러 표시해요. 강의는 EBS 화면이 새로 열려요. 로그인한 뒤 강의목록에서 오늘 강의의 “강의보기”를 눌러 주세요.</p>' + sndRow + "</div></div>";
   }
 
@@ -119,7 +119,7 @@
   /* ---------- 놀이 ---------- */
   function play() {
     var L = DAYS[ui.day].L.split(""), p = ui.sub;
-    if (!p) return top("카드놀이", '<span class="stars">★ ' + mem.stars + "</span>" + HOMEBTN) + '<div class="stage"><div class="pad"><p class="hint" style="margin-top:0">오늘 글자: <span class="letters">' + L.join(" ").toUpperCase() + '</span> · 하고 싶은 놀이를 하은이가 골라요.</p><div class="games">' +
+    if (!p) return top("카드놀이", '<span class="stars">★ ' + mem.stars + "</span>" + HOMEBTN) + '<div class="stage"><div class="pad"><p class="hint" style="margin-top:0">오늘 글자: <span class="letters">' + L.join(" ").toUpperCase() + '</span> · 하고 싶은 놀이를 하은이가 골라요.</p><div class="games ng">' +
       '<button class="game" data-a="g" data-g="mem"><span class="gt"><b>짝 찾기</b><span>카드를 뒤집어 큰 글자와 작은 글자 짝을 찾아요.</span></span>' + pal("dog", "") + '</button>' +
       '<button class="game" data-a="g" data-g="first"><span class="gt"><b>첫소리 찾기</b><span>단어를 듣고 처음에 나는 소리 글자를 눌러요.</span></span>' + pal("hamster", "") + '</button>' +
       '<button class="game" data-a="g" data-g="teach"><span class="gt"><b>선생님 놀이</b><span>하은이가 글자 소리를 내고, 엄마 아빠가 따라 해요.</span></span>' + pal("bear", "") + '</button>' +
@@ -127,18 +127,18 @@
     var back = '<span class="stars">★ ' + mem.stars + '</span><button class="pill" data-a="play">놀이 고르기</button>';
     if (p.g === "mem") {
       var cols = p.cards.length <= 4 ? 2 : p.cards.length <= 8 ? 4 : p.cards.length <= 12 ? 4 : 4;
-      var all = p.cards.every(function (c) { return c.ok; });
-      return top("짝 찾기", back) + '<div class="stage"><div class="mem" style="grid-template-columns:repeat(' + cols + ',auto)">' + p.cards.map(function (c, i) { return '<button class="mc' + (c.ok ? " ok" : c.up ? " up" : "") + '" data-a="mc" data-i="' + i + '" aria-label="카드 ' + (i + 1) + '">' + c.ch + "</button>"; }).join("") + "</div>" + (all ? '<div class="bar">' + pal("dog", "pal-sm hop") + '<span class="stamp" style="margin:0">다 찾았어요!</span><button class="big sun" data-a="g" data-g="mem">한 번 더</button></div>' : "") + "</div>";
+      var all = p.cards.every(function (c) { return c.ok; }), first = fx(p);
+      return top("짝 찾기", back) + '<div class="stage"><div class="mem" style="grid-template-columns:repeat(' + cols + ',auto)">' + p.cards.map(function (c, i) { return '<button class="mc' + (c.ok ? " ok" : c.up ? " up" : "") + (once(c, "flip") ? " flip" : "") + '" data-a="mc" data-i="' + i + '" aria-label="카드 ' + (i + 1) + '">' + c.ch + "</button>"; }).join("") + "</div>" + (first ? cheerFx() + (all ? rain() : "") : "") + (all ? '<div class="bar">' + pal("dog", "pal-sm hop") + '<span class="stamp stampin" style="margin:0">다 찾았어요!</span><button class="big sun" data-a="g" data-g="mem">한 번 더</button></div>' : "") + "</div>";
     }
     if (p.g === "first") {
       var q = p.q;
-      return top("첫소리 찾기", back) + '<div class="stage"><div class="center"><div class="pic" aria-hidden="true">' + PIC[q.ans][1] + '</div><button class="big sun" style="flex:none;padding:0 28px" data-a="say" data-w="' + PIC[q.ans][0] + '">소리 듣기</button><div class="choices">' + q.opts.map(function (c) { return '<button class="choice' + (q.hit === c ? " pop" : q.bad === c ? " shake" : "") + '" data-a="pf" data-c="' + c + '">' + c + "</button>"; }).join("") + '</div><div class="hint">소리가 안 나오면 엄마 아빠가 읽어 주세요: <span class="abc">' + PIC[q.ans][0] + "</span></div></div></div>";
+      return top("첫소리 찾기", back) + '<div class="stage"><div class="center">' + (fx(p) ? cheerFx() : "") + '<div class="pic" aria-hidden="true">' + PIC[q.ans][1] + '</div><button class="big sun" style="flex:none;padding:0 28px" data-a="say" data-w="' + PIC[q.ans][0] + '">소리 듣기</button><div class="choices">' + q.opts.map(function (c) { return '<button class="choice' + (q.hit === c ? " pop" : q.bad === c ? " shake" : "") + '" data-a="pf" data-c="' + c + '">' + c + "</button>"; }).join("") + '</div><div class="hint">소리가 안 나오면 엄마 아빠가 읽어 주세요: <span class="abc">' + PIC[q.ans][0] + "</span></div></div></div>";
     }
     if (p.g === "teach") return top("선생님 놀이", back) + '<div class="stage"><div class="center"><div class="abc giant">' + p.ch + '</div><div class="hint">하은 선생님이 소리를 내면, 엄마 아빠가 따라 해요. 가끔 일부러 틀려 보세요.</div></div><div class="bar"><button class="big sun" data-a="tn">다음 글자</button></div></div>';
     if (p.g === "rev") {
-      if (!p.q.length) return top("복습 글자", back) + '<div class="stage"><div class="center">' + pal("dog", "pal-lg hop") + '<span class="stamp">다 알아요!</span></div><div class="bar"><button class="big sun" data-a="g" data-g="rev">한 번 더</button></div></div>';
+      if (!p.q.length) return top("복습 글자", back) + '<div class="stage"><div class="center">' + (fx(p) ? rain() + cheerFx() : "") + yayClip() + '<span class="stamp stampin">다 알아요!</span></div><div class="bar"><button class="big sun" data-a="g" data-g="rev">한 번 더</button></div></div>';
       var c = p.q[0];
-      return top("복습 글자", back) + '<div class="stage"><div class="center"><div class="abc giant">' + c[0] + '</div><div style="font-family:var(--f-display);font-size:34px;min-height:1.5em">' + (p.show ? c[1] : "") + '</div><div class="hint">남은 글자 ' + p.q.length + "개 · 하은이가 이름을 말한 다음 정답을 확인해요.</div></div>" +
+      return top("복습 글자", back) + '<div class="stage"><div class="center">' + (fx(p) ? cheerFx() : "") + '<div class="abc giant">' + c[0] + '</div><div style="font-family:var(--f-display);font-size:34px;min-height:1.5em">' + (p.show ? c[1] : "") + '</div><div class="hint">남은 글자 ' + p.q.length + "개 · 하은이가 이름을 말한 다음 정답을 확인해요.</div></div>" +
         '<div class="bar">' + (p.show ? '<button class="big no" data-a="ra">다음에 또</button><button class="big yes" data-a="rk">알았어요</button>' : '<button class="big sun" data-a="rv">정답 보기</button>') + "</div></div>";
     }
     return "";
@@ -358,9 +358,16 @@
       '</ul></div><label for="rtxt" class="parent">' + NT.copyHint + '</label><textarea id="rtxt" readonly>' + esc(R.txt) + '</textarea></div><div class="bar"><button class="big sun" data-a="copy">결과 복사</button></div></div>';
   }
   /* 화면마다 배경 장면(sc-이름)과 떠다니는 꾸밈을 입힌다 */
+  /* 영어 화면(홈, 글자 탐험, 카드놀이)에도 배경 장면을 입힌다. 진단 결과 화면은 읽기 좋게 흰 바탕 그대로 둔다. */
+  function glam(h) {
+    var sc = ui.view === "check" ? (mem.diag && mem.diag.done ? "" : "check") : ui.view === "play" ? (ui.sub ? "play" : "playmenu") : "home";
+    return sc ? h.replace('<div class="stage">', '<div class="stage fun sc-' + sc + '">' + decor(sc)) : h;
+  }
+  /* 맞혔을 때 화면 가운데서 터지는 효과 묶음 */
+  function cheerFx() { return '<span class="fxhost" aria-hidden="true">' + confetti() + starburst() + '<span class="flash"></span></span>'; }
   function decor(sc) {
     var h = sparks(), i;
-    if (sc === "menu" || sc === "board") for (i = 1; i <= 5; i++) h += '<span class="floaty f' + i + '" aria-hidden="true">' + ["🎈", "⭐", "🎈", "💛", "🎈"][i - 1] + "</span>";
+    if (sc === "menu" || sc === "board" || sc === "home" || sc === "playmenu") for (i = 1; i <= 5; i++) h += '<span class="floaty f' + i + '" aria-hidden="true">' + ["🎈", "⭐", "🎈", "💛", "🎈"][i - 1] + "</span>";
     if (sc === "rocket") for (i = 1; i <= 4; i++) h += '<i class="shoot h' + i + '" aria-hidden="true"></i>';
     if (sc === "party") h += fireworks(7);
     return '<span class="decor" aria-hidden="true">' + h + "</span>";
@@ -460,9 +467,9 @@
 
   /* ---------- 그리기 ---------- */
   function render() {
-    app.innerHTML = ui.view === "check" ? diag() : ui.view === "play" ? play() : ui.view === "num" ? numView() : home();
+    app.innerHTML = ui.view === "num" ? numView() : glam(ui.view === "check" ? diag() : ui.view === "play" ? play() : home());
     var cv = document.getElementById("cv"); if (cv) draw(cv);
-    document.body.className = ui.view === "num" ? "numview" : "";
+    document.body.className = "numview";
     var vd = app.querySelector("video"); if (vd) { try { vd.muted = true; var pr = vd.play(); if (pr && pr.catch) pr.catch(function () {}); } catch (e) {} }
   }
   function draw(cv) {
@@ -484,7 +491,7 @@
     if (a === "check" || a === "play" || a === "num") return go(a);
     if (a.slice(0, 2) === "n-") return numClick(a.slice(2), b);
     if (a === "day") { ui.day = +b.dataset.i; return render(); }
-    if (a === "chk") { var k = DAYS[ui.day].k, d = mem.done[k] || (mem.done[k] = []); d[+b.dataset.i] = !d[+b.dataset.i]; save(); return render(); }
+    if (a === "chk") { var k = DAYS[ui.day].k, d = mem.done[k] || (mem.done[k] = []); d[+b.dataset.i] = !d[+b.dataset.i]; save(); if (d[+b.dataset.i] && allDone(ui.day)) ui.fx = true; return render(); }
     if (a === "dstart") { newDiag(); return render(); }
     if (a === "dredo") { mem.diag = null; save(); return render(); }
     if (a === "dpause") { save(); return go("home"); }
@@ -502,13 +509,13 @@
     if (a === "mdone") { g.res.match = ML.map(function (l) { return p.pairs[l] ? p.pairs[l] === l.toLowerCase() : false; }); return nextStep(); }
     if (a === "copy") { var t = document.getElementById("rtxt"); try { navigator.clipboard.writeText(t.value).then(function () { b.textContent = "복사했어요"; }, function () { t.select(); b.textContent = "아래 글을 길게 눌러 복사"; }); } catch (err) { t.select(); b.textContent = "아래 글을 길게 눌러 복사"; } return; }
     if (a === "g") { startGame(b.dataset.g); return render(); }
-    if (a === "mc") { var c = p.cards[+b.dataset.i]; if (p.lock || c.ok || c.up) return; c.up = true; p.open.push(c);
-      if (p.open.length === 2) { if (p.open[0].k === p.open[1].k) { p.open[0].ok = p.open[1].ok = true; p.open = []; mem.stars++; save(); } else { p.lock = true; setTimeout(function () { p.open.forEach(function (o) { o.up = false; }); p.open = []; p.lock = false; if (ui.sub === p) render(); }, 900); } }
+    if (a === "mc") { var c = p.cards[+b.dataset.i]; if (p.lock || c.ok || c.up) return; c.up = true; c.flip = true; p.open.push(c);
+      if (p.open.length === 2) { if (p.open[0].k === p.open[1].k) { p.open[0].ok = p.open[1].ok = true; p.open = []; mem.stars++; p.fx = true; save(); } else { p.lock = true; setTimeout(function () { p.open.forEach(function (o) { o.up = false; }); p.open = []; p.lock = false; if (ui.sub === p) render(); }, 900); } }
       return render(); }
-    if (a === "pf") { var q = p.q; if (q.hit) return; if (b.dataset.c === q.ans) { q.hit = q.ans; q.bad = null; mem.stars++; save(); render(); setTimeout(function () { if (ui.sub === p) { newQ(); render(); } }, 800); } else { q.bad = b.dataset.c; render(); } return; }
+    if (a === "pf") { var q = p.q; if (q.hit) return; if (b.dataset.c === q.ans) { q.hit = q.ans; q.bad = null; mem.stars++; p.fx = true; save(); render(); setTimeout(function () { if (ui.sub === p) { newQ(); render(); } }, 800); } else { q.bad = b.dataset.c; render(); } return; }
     if (a === "tn") { nextT(); return render(); }
     if (a === "rv") { p.show = true; speak(p.q[0][0].toLowerCase()); return render(); }
-    if (a === "rk") { p.q.shift(); p.show = false; mem.stars++; save(); return render(); }
+    if (a === "rk") { p.q.shift(); p.show = false; mem.stars++; p.fx = true; save(); return render(); }
     if (a === "ra") { p.q.push(p.q.shift()); p.show = false; return render(); }
     if (a === "snd") { ui.snd = sndText(); if (sndInfo().en) speak("apple"); return render(); }
     if (a === "cplink") { try { navigator.clipboard.writeText(URL0).then(function () { b.textContent = "복사했어요"; }, function () { b.textContent = "옆 주소를 길게 눌러 복사"; }); } catch (err) { b.textContent = "옆 주소를 길게 눌러 복사"; } return; }
