@@ -93,19 +93,25 @@ window.CONTENT = (function () {
     suggest: { window: 10, need: 8 },  /* 최근 10문제 중 첫 시도 8개 이상 맞으면 다음 단계를 권한다 */
     keep: 200,                /* 기록은 최근 200문제까지 */
     countMs: 700,             /* 세어 보여줄 때 점 하나에 걸리는 시간(밀리초) */
+    /* 점 대신 나오는 물건. 판마다 하나가 골라진다. [그림, 이름] */
+    things: [["🍓", "딸기"], ["⭐", "별"], ["🌰", "도토리"], ["🍪", "과자"], ["🎈", "풍선"], ["🍎", "사과"]],
+    /* 한 판 끝낼 때마다 하나씩 받는 스티커. "pal:이름" 은 친구들 그림(img 폴더). 아직 없는 종류부터 준다. */
+    stickers: ["pal:dog", "pal:bear", "pal:cat", "pal:hamster", "⛺", "🔥", "🌲", "🍄", "⭐", "🌙", "🍓", "🍪", "🎈", "🦋", "🌈", "🍎", "🐞", "🌻", "🎒", "🧭", "🍡", "🍩", "🧁", "🪁"],
+    keepStickers: 300,        /* 스티커는 최근 300개까지 */
     t: {
       title: "수 놀이", menuHint: "하고 싶은 놀이를 하은이가 골라요.", pick: "놀이 고르기",
       games: {
-        hide: ["숨기기 놀이", "곰이 점을 숨겨요. 몇 개 숨겼을까?"],
+        hide: ["숨기기 놀이", "곰이 몰래 숨겨요. 몇 개 숨겼을까?"],
         rocket: ["거꾸로 세기", "큰 수부터 눌러서 로켓을 쏴요."],
         dice: ["주사위 빼기", "주사위를 굴리고 빼기를 해요."],
         ten: ["10 만들기 짝꿍", "더해서 10이 되는 짝을 찾아요."]
       },
-      hideShow: "점이 {n}개 있어요.", hideGo: "곰아, 숨겨 줘!", hideAsk: "곰이 몇 개 숨겼게?", hideSee: "보이는 점", hideAll: "모두 {n}개",
+      hideShow: "{t가} {n}개 있어요.", hideGo: "곰아, 숨겨 줘!", hideAsk: "곰이 몇 개 숨겼게?", hideSee: "보이는 {t}", hideAll: "모두 {n}개",
+      board: "스티커 판", stkGot: "스티커를 받았어요!", stkCount: "{n}개 모았어요", stkHave: "스티커를 {n}개 모았어요!", stkNone: "아직 스티커가 없어요.", stkHow: "놀이를 한 판 끝내면 스티커를 하나 받아요.", stkKinds: "종류 {a} / {b}",
       split: "{n은} {a와} {b}",
       countTogether: "같이 세어 볼까?", help: "도와줘", next: "다음",
       rocketPick: "어디서부터 셀까?", rocketFrom: "{n}부터", rocketHint: "큰 수부터 차례로 눌러요.", rocketGo: "발사!",
-      diceRoll: "주사위를 눌러 굴려요.", diceZero: "0칸! 다시 굴리자.", diceMove: "{n}칸 앞으로!", diceGoal: "도착!", diceStop: "여기까지 왔어요!",
+      diceRoll: "주사위를 눌러 굴려요.", diceZero: "0칸! 다시 굴리자.", diceMove: "{n}칸 앞으로!", diceGoal: "캠핑장에 도착!", diceStop: "여기까지 왔어요!",
       tenHint: "더해서 10이 되는 두 장을 눌러요.", tenPair: "{a와} {b은} 10",
       done: "참 잘했어요!", again: "한 판 더", stop: "오늘은 여기까지", lvup: "더 큰 수로 해 볼까?",
       parent: "부모님 보기", level: "부모님: 단계 바꾸기", levelName: "{n}단계", levelMax: "{n}까지",

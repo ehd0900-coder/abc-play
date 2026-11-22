@@ -149,6 +149,37 @@ textarea { width: 100%; min-height: 110px; font: 15px var(--f-body); border: 2px
 .dot.x::after { content: ""; position: absolute; left: -4px; right: -4px; top: 50%; height: 5px; margin-top: -3px; border-radius: 3px; background: var(--ink); transform: rotate(-35deg); }
 .dot.new { animation: pop .3s; }
 @keyframes pop { 0% { transform: scale(.4); } 70% { transform: scale(1.15); } }
+/* 점 대신 물건 그림(딸기, 별…) */
+.dot.th { background: none; border: 0; font-size: 36px; line-height: 1; font-family: "Noto Color Emoji", "Apple Color Emoji", "Segoe UI Emoji", sans-serif; }
+.dot.th.was { background: var(--tint-sun); box-shadow: 0 0 0 3px var(--sun); }
+.dot.th.ghost { border: 3px dashed var(--line); }
+.dot.th.x { background: none; opacity: .4; }
+.dot.th.x::after { height: 6px; }
+.dot.th em { position: absolute; right: -6px; bottom: -6px; min-width: 24px; height: 24px; border-radius: 12px; background: var(--ink); color: #fff; font: 400 15px/24px var(--f-display); font-style: normal; text-align: center; }
+/* 맞혔을 때 색종이 */
+.say, .stamp { position: relative; }
+.confetti { position: absolute; left: 50%; top: 50%; width: 0; height: 0; pointer-events: none; }
+.confetti i { position: absolute; left: -5px; top: -7px; width: 10px; height: 14px; border-radius: 3px; opacity: 0; animation: burst .9s ease-out forwards; }
+.confetti i:nth-child(3n) { width: 12px; height: 12px; border-radius: 50%; }
+@keyframes burst { 0% { transform: translate(0, 0) scale(.4); opacity: 1; } 70% { opacity: 1; } 100% { transform: translate(var(--x), var(--y)) rotate(var(--r)); opacity: 0; } }
+/* 스티커 */
+.stk { width: 84px; height: 84px; border-radius: 50%; background: #fff; border: 3px solid var(--ink); box-shadow: 0 3px 0 var(--line); display: inline-grid; place-items: center; font-size: 44px; line-height: 1; overflow: hidden; font-family: "Noto Color Emoji", "Apple Color Emoji", "Segoe UI Emoji", sans-serif; }
+.stk .pal { height: 70px; margin-top: 12px; }
+.stk.sm { width: 46px; height: 46px; font-size: 24px; border-width: 2px; box-shadow: none; }
+.stk.sm .pal { height: 38px; margin-top: 6px; }
+.stk.empty { border: 3px dashed var(--line); box-shadow: none; background: none; }
+.stk.t1 { transform: rotate(-6deg); } .stk.t2 { transform: rotate(5deg); }
+.stk.pop { animation: pop .45s; }
+.stkgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); gap: 14px; justify-items: center; margin-top: 14px; }
+.got { display: flex; align-items: center; gap: 12px; font-family: var(--f-display); font-size: 24px; }
+.bar .got .stk { width: 64px; height: 64px; font-size: 34px; } .bar .got .stk .pal { height: 54px; margin-top: 9px; } .bar .got span:last-child { font-size: 18px; }
+.stkbar { width: 100%; min-height: 76px; margin-top: 14px; border: 3px solid var(--ink); border-radius: 24px; background: #fff; display: flex; align-items: center; gap: 14px; padding: 10px 20px; text-align: left; }
+.stkbar b { font-family: var(--f-display); font-weight: 400; font-size: 24px; white-space: nowrap; }
+.stkbar > span { color: var(--ink-soft); font-size: 16px; }
+.stkbar .stkrow { margin-left: auto; display: flex; gap: 6px; }
+.stkbar:active { transform: translateY(3px); }
+.cell.goal { border: 0; font-size: 30px; overflow: visible; font-family: "Noto Color Emoji", "Apple Color Emoji", "Segoe UI Emoji", sans-serif; }
+.cell.goal.here { background: none; }
 .dotbox.mini { gap: 3px; }
 .dotbox.mini .dot { width: 13px; height: 13px; }
 .dotbox.mini .dot.ghost { border: 0; background: var(--line); }
@@ -200,5 +231,6 @@ button.dice .die { background: var(--sun); }
   .numfoot .parent { margin-left: 0; width: 100%; }
   .games.ng { grid-template-columns: 1fr; } .games.ng .game { min-height: 0; } .games.ng .game .pal { height: 92px; }
 }
+@media (max-height: 700px) { .games.ng .game { min-height: 20vh; } .games.ng .game .pal { height: 17vh; } .stkbar { margin-top: 10px; } .numfoot { margin-top: 10px; } }
 @media (max-height: 640px) { .center { gap: 8px; padding: 10px; } .say { font-size: 24px; } .eq { font-size: 44px; } .die { width: 88px; height: 88px; padding: 9px; } .die i { width: 16px; height: 16px; } }
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
