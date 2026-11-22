@@ -312,6 +312,115 @@ video.pal-yay { animation: none; width: auto; background: #fff; }
 .rain i:nth-child(3n) { width: 12px; height: 12px; border-radius: 50%; }
 @keyframes fall { 100% { transform: translateY(110vh) rotate(var(--r)); } }
 @media (max-width: 800px) { .tencat { display: none; } .tenpop { font-size: 110px; } .ship .pal { height: 120px; } .puffs { top: 106px; } }
+
+/* ===== 수 놀이: 화려한 장면 =====
+   화면마다 배경 그림이 깔리고, 글자는 흰 알약 위에 얹어 언제나 읽히게 한다. */
+body.numview { background: linear-gradient(135deg, #6fd3e8 0%, #b6a4f2 42%, #ff9db6 72%, #ffd25b 100%) fixed; }
+body.numview .top h1 { color: #fff; font-size: 36px; -webkit-text-stroke: 7px var(--ink); paint-order: stroke fill; letter-spacing: .04em; animation: titlebob 2.2s ease-in-out infinite; transform-origin: 0 60%; }
+@keyframes titlebob { 0%, 100% { transform: rotate(-1.5deg) scale(1); } 50% { transform: rotate(1.5deg) scale(1.04); } }
+body.numview .pill { border-color: var(--ink); border-width: 3px; box-shadow: 0 4px 0 var(--ink); }
+.stage.fun { background-color: #fff; background-size: cover; background-position: center; border-width: 4px; box-shadow: 0 0 0 4px #fff, 0 0 0 8px var(--sun), 0 0 0 12px var(--berry), 0 0 0 16px #66a5c1; margin: 6px 12px 12px; }
+.sc-menu, .sc-dice { background-image: url(img/bg_camp.jpg); }
+.sc-hide { background-image: url(img/bg_picnic.jpg); }
+.sc-rocket { background-image: url(img/bg_space.jpg); }
+.sc-ten, .sc-board, .sc-party { background-image: url(img/bg_party.jpg); }
+.stage.fun > .pad { padding: 14px 18px; }
+.stage.fun .games.ng .game { min-height: min(20vh, 150px); } .stage.fun .games.ng { gap: 12px; } .stage.fun .numfoot { margin-top: 10px; } .stage.fun .stkbar { margin-top: 12px; min-height: 72px; }
+.sc-party > .center { gap: 6px; } .sc-party .rk { gap: 10px; } .stage.fun.sc-party .say, .stage.fun.sc-board .say { font-size: 26px; padding: 4px 22px; } .sc-party .bubbles { gap: 8px; } .sc-party .bub { margin-top: 0 !important; }
+@media (max-width: 800px) { .stage.fun .games.ng .game { min-height: 0; } .tens { gap: 8px; } .stage.fun .tc { width: 15.5vw; } }
+.sc-party .bub { width: 84px; height: 84px; } .sc-party .bub b { font-size: 30px; } .sc-party .ship .pal { height: 120px; } .sc-board .stkgrid { gap: 10px; margin-top: 8px; }
+.decor { position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 0; border-radius: 22px; }
+.stage.fun > .center, .stage.fun > .pad, .stage.fun > .bar { position: relative; z-index: 1; }
+.stage.fun > .bar { background: rgba(255, 255, 255, .94); border-top: 4px solid var(--ink); }
+.stage.fun .say { background: #fff; border: 4px solid var(--ink); border-radius: 999px; padding: 6px 26px; box-shadow: 0 5px 0 var(--ink); font-size: 32px; }
+.stage.fun .hint, .stage.fun .numfoot .parent, .stage.fun .timerow { background: rgba(255, 255, 255, .92); border-radius: 999px; padding: 3px 14px; display: inline-block; }
+.stage.fun .timerow { border: 3px solid var(--ink); padding: 4px 20px; }
+.stage.fun .eq { color: var(--ink); -webkit-text-stroke: 10px #fff; paint-order: stroke fill; }
+.stage.fun .got { background: #fff; border: 4px solid var(--ink); border-radius: 999px; padding: 6px 22px 6px 8px; box-shadow: 0 5px 0 var(--ink); }
+.say.cheer { background: linear-gradient(90deg, #ffe07a, #ffb3a6, #9fd6f0, #b4e495) !important; animation: cheer .8s cubic-bezier(.2, .9, .3, 1.4); }
+@keyframes cheer { 0% { transform: scale(.6) rotate(-6deg); } 45% { transform: scale(1.3) rotate(4deg); } 70% { transform: scale(.95) rotate(-2deg); } }
+.flash { position: fixed; inset: 0; pointer-events: none; z-index: 9; background: radial-gradient(circle, rgba(255, 255, 255, .95), rgba(255, 210, 91, .5) 55%, rgba(255, 255, 255, 0) 80%); animation: flash .6s ease-out forwards; }
+@keyframes flash { 0% { opacity: 1; } 100% { opacity: 0; } }
+.confetti.stars b { position: absolute; left: -18px; top: -18px; font-size: 34px; font-weight: 400; opacity: 0; animation: burst 1.3s ease-out forwards; }
+/* 버튼: 알록달록 젤리 */
+.nbtn { box-shadow: 0 6px 0 var(--ink); border-width: 4px; }
+.nbtn:active { transform: translateY(5px) scale(.96); box-shadow: 0 1px 0 var(--ink); }
+.nbtn.in { animation: jelly .5s cubic-bezier(.2, .9, .3, 1.5) both; }
+@keyframes jelly { 0% { transform: translateY(40px) scale(.3); opacity: 0; } 60% { transform: translateY(-6px) scale(1.12, .92); opacity: 1; } 80% { transform: scale(.95, 1.06); } }
+.nbtn.c0 { background: #ffe07a; } .nbtn.c1 { background: #ffb3a6; } .nbtn.c2 { background: #b4e495; } .nbtn.c3 { background: #9fd6f0; } .nbtn.c4 { background: #f7b6e2; } .nbtn.c5 { background: #ffd0a0; }
+.stage.fun .big { box-shadow: 0 6px 0 var(--ink); border-width: 4px; }
+.stage.fun .big:active { transform: translateY(5px); box-shadow: 0 1px 0 var(--ink); }
+.stage.fun .big.sun { background: linear-gradient(#ffe88a, #ffc233); animation: pulse 1.3s ease-in-out infinite; }
+@keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.03); } }
+/* 고르기 화면 */
+.games.ng .game { position: relative; overflow: hidden; border-width: 4px; box-shadow: 0 7px 0 var(--ink); }
+.games.ng .game:nth-child(1) { background: linear-gradient(135deg, #fff0a8, #ffc94d); } .games.ng .game:nth-child(2) { background: linear-gradient(135deg, #d6f5b8, #8fd66a); }
+.games.ng .game:nth-child(3) { background: linear-gradient(135deg, #ffd3cb, #ff8f80); } .games.ng .game:nth-child(4) { background: linear-gradient(135deg, #cfeeff, #6fc0ea); }
+.games.ng .game span { color: var(--ink); }
+.games.ng .game::after { content: ""; position: absolute; top: -60%; left: -40%; width: 26%; height: 220%; background: linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, .75), rgba(255, 255, 255, 0)); transform: rotate(22deg); animation: sweep 3.4s ease-in-out infinite; pointer-events: none; }
+.games.ng .game:nth-child(2)::after { animation-delay: .5s; } .games.ng .game:nth-child(3)::after { animation-delay: 1s; } .games.ng .game:nth-child(4)::after { animation-delay: 1.5s; }
+@keyframes sweep { 0%, 55% { left: -40%; } 100% { left: 130%; } }
+.games.ng .game:active { transform: translateY(5px); box-shadow: 0 2px 0 var(--ink); }
+.stkbar { border-width: 4px; box-shadow: 0 6px 0 var(--ink); background: linear-gradient(90deg, #fff, #fff4c9); }
+.floaty { position: absolute; bottom: -70px; font-size: 46px; line-height: 1; pointer-events: none; z-index: 0; animation: floatup 11s linear infinite; }
+.floaty.f1 { left: 4%; } .floaty.f2 { left: 26%; animation-delay: -3s; font-size: 30px; } .floaty.f3 { left: 52%; animation-delay: -6s; } .floaty.f4 { left: 74%; animation-delay: -8.5s; font-size: 32px; } .floaty.f5 { left: 93%; animation-delay: -1.5s; }
+@keyframes floatup { 0% { transform: translateY(0) rotate(-8deg); } 50% { transform: translateY(-60vh) rotate(8deg); } 100% { transform: translateY(-125vh) rotate(-8deg); } }
+/* 물건·컵 */
+.stage.fun .dot.th { width: 56px; height: 56px; background: #fff; border: 3px solid var(--ink); border-radius: 50%; box-shadow: 0 4px 0 rgba(43, 33, 24, .25); }
+.stage.fun .dot.th:not(.was):not(.ghost):not(.x):not(.in):not(.tocup) { animation: bob 2.2s ease-in-out infinite; }
+.stage.fun .dot.th:nth-child(2n) { animation-delay: -.6s; } .stage.fun .dot.th:nth-child(3n) { animation-delay: -1.2s; }
+.stage.fun .dot.th.was { background: #fff3b0; box-shadow: 0 0 0 4px var(--sun), 0 0 18px 6px rgba(255, 210, 91, .9); }
+.stage.fun .dot.th.ghost { background: rgba(255, 255, 255, .55); border-style: dashed; box-shadow: none; }
+.stage.fun .dot.th.x { background: rgba(255, 255, 255, .7); box-shadow: none; }
+.cup { background: linear-gradient(160deg, #bfe9ff, #5fb6e6); border-width: 5px; box-shadow: 0 6px 0 var(--ink), inset 10px 10px 0 rgba(255, 255, 255, .45); color: #fff; -webkit-text-stroke: 6px var(--ink); paint-order: stroke fill; font-size: 70px; animation: cupbob 1.4s ease-in-out infinite; }
+@keyframes cupbob { 0%, 100% { transform: rotate(-3deg); } 50% { transform: rotate(3deg) translateY(-5px); } }
+.cup.wob { animation: wob .7s ease-in-out, cupbob 1.4s ease-in-out .7s infinite; }
+/* 주사위·말판 */
+.stage.fun .die { box-shadow: 0 6px 0 var(--ink); border-width: 5px; }
+.stage.fun .die:first-child { background: #ffe07a; } .stage.fun .die + .die { background: #9fd6f0; }
+.stage.fun .cell { background: #fff; border-color: var(--ink); height: 34px; }
+.stage.fun .cell.past { color: #fff; font-size: 16px; border-color: var(--ink); }
+.stage.fun .cell.past:nth-child(5n+1) { background: #ff8f80; } .stage.fun .cell.past:nth-child(5n+2) { background: #ffc94d; } .stage.fun .cell.past:nth-child(5n+3) { background: #8fd66a; } .stage.fun .cell.past:nth-child(5n+4) { background: #6fc0ea; } .stage.fun .cell.past:nth-child(5n) { background: #d59cf0; }
+.stage.fun .cell.here { background: var(--sun); box-shadow: 0 0 14px 5px rgba(255, 210, 91, .95); }
+.stage.fun .cell.goal { background: none; font-size: 40px; animation: goalpulse 1s ease-in-out infinite; }
+@keyframes goalpulse { 0%, 100% { transform: scale(1) translateY(-6px); } 50% { transform: scale(1.25) translateY(-10px) rotate(6deg); } }
+.board { padding-top: 62px; }
+.cell .runner { height: 74px; filter: drop-shadow(0 3px 0 rgba(43, 33, 24, .3)); }
+/* 우주: 방울은 빛나는 행성 */
+.sc-rocket .bub { border-width: 4px; box-shadow: 0 0 20px 4px rgba(255, 255, 255, .55), inset 10px 10px 0 rgba(255, 255, 255, .35); }
+.bub.b0 { background: #ffb3a6; } .bub.b1 { background: #ffe07a; } .bub.b2 { background: #b4e495; } .bub.b3 { background: #9fd6f0; } .bub.b4 { background: #e3b4f7; }
+.sc-rocket .bub.gone { background: rgba(255, 255, 255, .2); border-color: rgba(255, 255, 255, .5); box-shadow: none; color: rgba(255, 255, 255, .6); opacity: .7; }
+.sc-rocket .gauge i { border-color: #fff; background: rgba(255, 255, 255, .2); width: 60px; height: 13px; }
+.sc-rocket .gauge i.on { background: #ffd25b; box-shadow: 0 0 10px 2px #ffd25b; }
+.sc-rocket .ship .pal { filter: drop-shadow(0 0 10px rgba(255, 255, 255, .8)); }
+.flame { width: 40px; margin-left: -20px; height: calc(10px + 90px * var(--f)); box-shadow: 0 0 22px 8px rgba(255, 170, 60, .8); }
+.shoot { position: absolute; left: -160px; width: 150px; height: 5px; border-radius: 3px; background: linear-gradient(90deg, rgba(255, 255, 255, 0), #fff 70%, #ffd25b); pointer-events: none; z-index: 0; animation: shoot 5s linear infinite; }
+.shoot.h1 { top: 12%; } .shoot.h2 { top: 38%; animation-delay: -1.7s; animation-duration: 6.5s; } .shoot.h3 { top: 64%; animation-delay: -3.1s; } .shoot.h4 { top: 86%; animation-delay: -4.2s; animation-duration: 7s; }
+@keyframes shoot { 0% { transform: translate(0, 0) rotate(8deg); opacity: 0; } 10% { opacity: 1; } 60% { opacity: 1; } 100% { transform: translate(130vw, 16vh) rotate(8deg); opacity: 0; } }
+/* 10 만들기 카드 */
+.stage.fun .tc { box-shadow: 0 6px 0 var(--ink); border-width: 4px; }
+.tc.k0 { background: #fff0a8; } .tc.k1 { background: #ffd3cb; } .tc.k2 { background: #d6f5b8; } .tc.k3 { background: #cfeeff; } .tc.k4 { background: #f3d4fb; }
+.stage.fun .tc.sel { background: var(--sun); transform: translateY(-12px) rotate(-4deg) scale(1.08); box-shadow: 0 14px 0 rgba(43, 33, 24, .35), 0 0 22px 8px rgba(255, 210, 91, .95); }
+.tenpop { font-size: 220px; color: #fff; -webkit-text-stroke: 14px var(--berry); text-shadow: 0 0 30px #ffd25b; }
+/* 한 판 끝: 햇살, 불꽃놀이, 파티 영상 */
+.hero { position: relative; display: grid; place-items: center; }
+.sc-party > .center { overflow: hidden; padding: 10px; gap: 8px; }
+.rays { position: absolute; left: 50%; top: 50%; width: 720px; height: 720px; margin: -360px 0 0 -360px; border-radius: 50%; background: repeating-conic-gradient(rgba(255, 210, 91, .95) 0deg 10deg, rgba(255, 255, 255, 0) 10deg 20deg); -webkit-mask: radial-gradient(circle, #000 0 30%, rgba(0, 0, 0, 0) 68%); mask: radial-gradient(circle, #000 0 30%, rgba(0, 0, 0, 0) 68%); animation: spin 16s linear infinite; pointer-events: none; }
+@keyframes spin { 100% { transform: rotate(360deg); } }
+.clip { position: relative; z-index: 1; display: block; width: auto; height: min(30vh, 230px); border: 5px solid var(--ink); border-radius: 28px; box-shadow: 0 0 0 5px #fff, 0 0 0 10px var(--sun), 0 10px 0 10px rgba(43, 33, 24, .25); background: #6fd3e8; animation: clipin .7s cubic-bezier(.2, .9, .3, 1.3) both; }
+@keyframes clipin { 0% { transform: scale(.2) rotate(-12deg); opacity: 0; } }
+.stage.fun .stamp { background: #fff; font-size: 34px; border-width: 5px; box-shadow: 0 0 0 4px #fff; position: relative; z-index: 2; margin-top: -26px; }
+.stage.fun .bar .stamp { margin-top: 0; }
+.fwbox { position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 0; border-radius: 24px; }
+.fw { position: absolute; width: 0; height: 0; transform: scale(var(--s)); }
+.fw i { position: absolute; left: -4px; top: -11px; width: 8px; height: 22px; border-radius: 4px; opacity: 0; animation: fwray 1.9s ease-out infinite; animation-delay: var(--d); }
+@keyframes fwray { 0% { transform: rotate(var(--a)) translateY(0) scaleY(.2); opacity: 1; } 50% { opacity: 1; } 78%, 100% { transform: rotate(var(--a)) translateY(-96px) scaleY(1); opacity: 0; } }
+.rain b { position: absolute; top: -50px; font-size: 34px; font-weight: 400; line-height: 1; animation: fall 3s linear forwards; }
+.stk { box-shadow: 0 4px 0 var(--ink); }
+.got .stk { width: 92px; height: 92px; font-size: 50px; }
+.stkslot.newest .stk { box-shadow: 0 4px 0 var(--ink), 0 0 22px 8px rgba(255, 210, 91, .95); }
+.spark { font-size: 30px; text-shadow: 0 0 10px #fff; z-index: 0; }
+@media (max-width: 800px) { body.numview .top h1 { font-size: 26px; -webkit-text-stroke-width: 5px; } .stage.fun { margin: 6px 8px 10px; } .stage.fun .say { font-size: 24px; padding: 5px 18px; } .stage.fun .dot.th { width: 44px; height: 44px; font-size: 28px; } .tenpop { font-size: 150px; } .clip { height: auto; width: min(100%, 420px); } .rays { width: 520px; height: 520px; margin: -260px 0 0 -260px; } .cell .runner { height: 54px; } }
 @media (max-height: 700px) { .games.ng .game { min-height: 20vh; } .games.ng .game .pal { height: 17vh; } .stkbar { margin-top: 10px; } .numfoot { margin-top: 10px; } }
 @media (max-height: 640px) { .center { gap: 8px; padding: 10px; } .say { font-size: 24px; } .eq { font-size: 44px; } .die { width: 88px; height: 88px; padding: 9px; } .die i { width: 16px; height: 16px; } }
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
