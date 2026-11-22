@@ -36,7 +36,7 @@
   function go(v) { ui.view = v; ui.sub = null; try { location.hash = v === "home" ? "" : v; } catch (e) {} render(); }
   function top(title, right) { return '<div class="top"><h1>' + title + "</h1>" + (right || "") + "</div>"; }
   /* 친구들 그림. 꾸밈용이라 alt 는 비운다. */
-  var PALS = { dog: [312, 440], bear: [284, 440], cat: [289, 440], hamster: [357, 440], friends: [900, 381] };
+  var PALS = { dog: [312, 440], bear: [284, 440], cat: [289, 440], hamster: [357, 440], friends: [900, 381], rocket: [255, 420], run: [287, 300], card: [346, 440], yay: [900, 342] };
   function pal(n, cls) { return '<img class="pal ' + cls + '" src="img/' + n + '.png" width="' + PALS[n][0] + '" height="' + PALS[n][1] + '" alt="" draggable="false">'; }
   var HOMEBTN = '<button class="pill" data-a="home">처음으로</button>';
 
@@ -161,12 +161,17 @@
   var PIPS = [[], [4], [0, 8], [0, 4, 8], [0, 2, 6, 8], [0, 2, 4, 6, 8], [0, 2, 3, 5, 6, 8], [0, 2, 3, 4, 5, 6, 8], [0, 1, 2, 3, 5, 6, 7, 8], [0, 1, 2, 3, 4, 5, 6, 7, 8]];
   var NPAL = { hide: "bear", rocket: "dog", dice: "hamster", ten: "cat" }, NGAMES = ["hide", "rocket", "dice", "ten"];
   var CONFETTI = ["#ffd25b", "#d9503f", "#5d8f3f", "#66a5c1", "#f8aba4"];
+  /* 움직임을 줄이도록 설정한 기기에서는 기다리는 연출을 건너뛴다 */
+  var CALM = false; try { CALM = window.matchMedia("(prefers-reduced-motion: reduce)").matches; } catch (e) {}
+  function later(p, ms, fn) { setTimeout(function () { if (ui.sub === p) fn(); }, CALM ? 0 : ms); }
+  function once(p, k) { var f = p[k]; p[k] = null; return f; }   /* 한 번만 쓰는 연출 표시 */
   function numMem() {
     var n = mem.num; if (!n || typeof n !== "object" || Array.isArray(n)) n = mem.num = {};
     if (!(n.lv >= 1 && n.lv <= NUM.levels.length)) n.lv = 1;
     if (!Array.isArray(n.log)) n.log = [];
     if (!n.plays || typeof n.plays !== "object") n.plays = {};
     if (!Array.isArray(n.stk)) n.stk = [];
+    if (!n.best || typeof n.best !== "object") n.best = {};
     return n;
   }
   function today() { var n = new Date(); return n.getFullYear() + "-" + ("0" + (n.getMonth() + 1)).slice(-2) + "-" + ("0" + n.getDate()).slice(-2); }
@@ -189,30 +194,44 @@
     return r.length >= NUM.suggest.window && r.filter(function (e) { return e.ok; }).length >= NUM.suggest.need;
   }
   /* 점 묶음. th 를 주면 까만 점 대신 그 물건 그림(딸기, 별…)으로 그린다. */
-  function dots(n, f, mini, th) {
+  function dots(n, f, mini, th, stagger) {
     var h = '<span class="dotbox' + (mini ? " mini" : "") + '">';
     for (var i = 0; i < n; i++) {
       var d = f ? f(i) : null, c = d && d.c ? " " + d.c : "", t = d && d.t ? d.t : "";
-      h += '<i class="dot' + (th ? " th" : "") + c + '">' + (th ? (c.indexOf("ghost") >= 0 ? "" : th) + (t ? "<em>" + t + "</em>" : "") : t) + "</i>";
+      h += '<i class="dot' + (th ? " th" : "") + c + (stagger ? ' in" style="animation-delay:' + (i * 80) + "ms" : "") + '">' + (th ? (c.indexOf("ghost") >= 0 ? "" : th) + (t ? "<em>" + t + "</em>" : "") : t) + "</i>";
     }
     return h + "</span>";
   }
   function nums(max) { var h = '<div class="nums">'; for (var i = 0; i <= max; i++) h += '<button class="nbtn" data-a="n-ans" data-v="' + i + '">' + i + "</button>"; return h + "</div>"; }
   function confetti() {
     var h = '<span class="confetti" aria-hidden="true">';
-    for (var i = 0; i < 16; i++) { var ang = Math.PI * 2 * i / 16 + Math.random() * 0.4, r = rnd(70, 170); h += '<i style="--x:' + Math.round(Math.cos(ang) * r) + "px;--y:" + Math.round(Math.sin(ang) * r - 40) + "px;--r:" + rnd(-300, 300) + "deg;background:" + CONFETTI[i % CONFETTI.length] + '"></i>'; }
+    for (var i = 0; i < 26; i++) { var ang = Math.PI * 2 * i / 26 + Math.random() * 0.4, r = rnd(80, 230); h += '<i style="--x:' + Math.round(Math.cos(ang) * r) + "px;--y:" + Math.round(Math.sin(ang) * r - 50) + "px;--r:" + rnd(-400, 400) + "deg;animation-delay:" + rnd(0, 120) + "ms;background:" + CONFETTI[i % CONFETTI.length] + '"></i>'; }
     return h + "</span>";
   }
+  /* 한 판을 끝냈을 때 위에서 내리는 색종이 */
+  function rain() {
+    var h = '<span class="rain" aria-hidden="true">';
+    for (var i = 0; i < 34; i++) h += '<i style="left:' + rnd(2, 98) + "%;animation-delay:" + rnd(0, 1800) + "ms;animation-duration:" + rnd(1800, 3200) + "ms;--r:" + rnd(-500, 500) + "deg;background:" + CONFETTI[i % CONFETTI.length] + '"></i>';
+    return h + "</span>";
+  }
+  /* 화면 구석에서 반짝이는 별 */
+  function sparks() { var h = ""; for (var i = 1; i <= 6; i++) h += '<span class="spark s' + i + '" aria-hidden="true">✦</span>'; return h; }
   /* 맞혔을 때 색종이는 한 번만 터진다(다시 그릴 때는 안 나옴) */
   function fx(p) { var f = p.fx; p.fx = false; return !!f; }
   function say(t, pop) { return '<p class="say">' + t + (pop ? confetti() : "") + "</p>"; }
   function stk(id, cls) { var isPal = String(id).slice(0, 4) === "pal:" && PALS[id.slice(4)]; return '<span class="stk' + (cls ? " " + cls : "") + '">' + (isPal ? pal(id.slice(4), "") : esc(id)) + "</span>"; }
+  /* 맞고 틀림이 없는 놀이(10 만들기, 거꾸로 세기)는 끝난 뒤에 걸린 시간을 알려 준다. 놀이 중에는 시계를 보이지 않는다. */
+  function clock(p, key) { var N = numMem(), s = Math.max(1, Math.round((Date.now() - p.t0) / 1000)), old = N.best[key]; p.sec = s; p.best = old; p.newBest = !old || s < old; if (p.newBest) N.best[key] = s; }
+  function timeRow(p) { return p.sec ? '<p class="timerow">' + fmt(NT.timeTook, { n: p.sec }) + (p.newBest ? ' <b class="newbest">' + NT.timeNew + "</b>" : " <span>" + fmt(NT.timeBest, { n: p.best }) + "</span>") + "</p>" : ""; }
+  function bestLine(N) { var names = [["ten", NT.games.ten[0]]].concat(NUM.rocket.map(function (n) { return ["rocket" + n, NT.games.rocket[0] + " " + fmt(NT.rocketFrom, { n: n })]; })), a = names.filter(function (x) { return N.best[x[0]]; }).map(function (x) { return x[1] + " " + N.best[x[0]] + "초"; }); return a.length ? "\n가장 빠른 기록: " + a.join(", ") : ""; }
   function nback() { return '<button class="pill" data-a="num">' + NT.pick + "</button>"; }
   function helpBtn(p) { return '<button class="big no" data-a="n-help"' + (p.help ? " disabled" : "") + ">" + NT.help + "</button>"; }
   function nextBtn() { return '<button class="big sun" data-a="n-next">' + NT.next + "</button>"; }
   function endBtns(g) { return (canLvUp() && (g === "hide" || g === "dice") ? '<button class="big ink" data-a="n-lvup">' + NT.lvup + "</button>" : "") + '<button class="big no" data-a="num">' + NT.stop + '</button><button class="big sun" data-a="n-g" data-g="' + g + '">' + NT.again + "</button>"; }
-  function gotRow(p) { return p.got ? '<div class="got">' + stk(p.got, "pop") + "<span>" + NT.stkGot + "</span></div>" : ""; }
-  function ndone(g, msg, p) { return '<div class="stage"><div class="center">' + pal("dog", "pal-md hop") + '<span class="stamp">' + msg + (fx(p) ? confetti() : "") + "</span>" + gotRow(p) + '</div><div class="bar">' + endBtns(g) + "</div></div>"; }
+  function gotRow(p) { return p.got ? '<div class="got">' + stk(p.got, "arrive") + "<span>" + NT.stkGot + "</span></div>" : ""; }
+  /* 한 판 끝: 친구들이 폴짝폴짝 뛰는 짧은 영상(소리 없음). 영상이 안 뜨면 같은 그림이 대신 보인다. */
+  function yayClip() { return CALM ? pal("yay", "pal-yay") : '<video class="pal-yay" src="img/yay.mp4" poster="img/yay.png" width="640" height="300" autoplay loop muted playsinline disablepictureinpicture aria-hidden="true"></video>'; }
+  function ndone(g, msg, p) { var first = fx(p); return '<div class="stage fun">' + (first ? rain() : "") + sparks() + '<div class="center">' + yayClip() + '<span class="stamp stampin">' + msg + (first ? confetti() : "") + "</span>" + gotRow(p) + '</div><div class="bar">' + endBtns(g) + "</div></div>"; }
   /* 틀렸을 때: 물건을 하나씩 밝히며 센다. 다 세면 then 단계로 넘어간다. */
   function countUp(p, total, then) {
     p.step = 0;
@@ -224,16 +243,16 @@
       /* 문제는 (전체 n, 보이는 b). 새 단계의 큰 수를 많이, 앞 단계 수를 조금 섞는다. */
       var hi = [], lo = [], n, b; for (n = 2; n <= max; n++) for (b = 1; b < n; b++) (n > prev ? hi : lo).push({ n: n, b: b });
       var q = shuffle(hi).slice(0, N.lv > 1 ? Math.ceil(NUM.round * 0.75) : NUM.round); q = shuffle(q.concat(shuffle(lo).slice(0, NUM.round - q.length)));
-      ui.sub = { g: g, q: q, cur: q.shift(), ph: "show", retry: 0, help: false, step: 0, counted: false, doneN: 0, lv: N.lv, th: th };
+      ui.sub = { g: g, q: q, cur: q.shift(), ph: "show", retry: 0, help: false, step: 0, counted: false, doneN: 0, lv: N.lv, th: th, intro: true };
     }
     if (g === "dice") ui.sub = { g: g, pos: keepPos || 0, asked: 0, ph: "roll", d: [0, 0], big: 0, small: 0, re: false, help: false, step: 0, counted: false, retry: 0, pend: [], lv: N.lv, f1: max, f2: Math.min(6, max), th: th };
     if (g === "rocket") ui.sub = { g: g, ph: "pick" };
-    if (g === "ten") ui.sub = { g: g, ph: "play", cards: shuffle([1, 2, 3, 4, 5, 5, 6, 7, 8, 9]).map(function (v) { return { v: v, gone: false }; }), sel: null, bad: null, last: null };
+    if (g === "ten") ui.sub = { g: g, ph: "play", cards: shuffle([1, 2, 3, 4, 5, 5, 6, 7, 8, 9]).map(function (v) { return { v: v, gone: false }; }), sel: null, bad: null, last: null, t0: Date.now() };
   }
   function numMenu() {
     var N = numMem(), n = N.stk.length;
-    return top(NT.title, HOMEBTN) + '<div class="stage"><div class="pad"><p class="hint" style="margin-top:0">' + NT.menuHint + '</p><div class="games ng">' +
-      NGAMES.map(function (g) { return '<button class="game" data-a="n-g" data-g="' + g + '"><span class="gt"><b>' + NT.games[g][0] + "</b><span>" + NT.games[g][1] + "</span></span>" + pal(NPAL[g], "") + "</button>"; }).join("") +
+    return top(NT.title, HOMEBTN) + '<div class="stage fun">' + sparks() + '<div class="pad"><p class="hint" style="margin-top:0">' + NT.menuHint + '</p><div class="games ng">' +
+      NGAMES.map(function (g, i) { return '<button class="game rise" style="animation-delay:' + (i * 90) + 'ms" data-a="n-g" data-g="' + g + '"><span class="gt"><b>' + NT.games[g][0] + "</b><span>" + NT.games[g][1] + "</span></span>" + pal(NPAL[g], "") + "</button>"; }).join("") +
       '</div><button class="stkbar" data-a="n-board"><b>' + NT.board + "</b><span>" + (n ? fmt(NT.stkCount, { n: n }) : NT.stkHow) + '</span><span class="stkrow">' + N.stk.slice(-6).map(function (s) { return stk(s, "sm"); }).join("") + "</span></button>" +
       '<div class="numfoot"><button class="small" data-a="n-parent">' + NT.parent + '</button><span class="parent">' + NT.level + "</span>" +
       NUM.levels.map(function (m, i) { return '<button class="small' + (N.lv === i + 1 ? " on" : "") + '" data-a="n-lv" data-v="' + (i + 1) + '">' + fmt(NT.levelName, { n: i + 1 }) + " · " + fmt(NT.levelMax, { n: m }) + "</button>"; }).join("") + "</div></div></div>";
@@ -241,21 +260,23 @@
   function boardView() {
     var N = numMem(), n = N.stk.length, kinds = {}, slots = Math.max(20, Math.ceil((n + 1) / 10) * 10), h = "", i;
     N.stk.forEach(function (s) { kinds[s] = 1; });
-    for (i = 0; i < slots; i++) h += i < n ? stk(N.stk[i], "t" + (i % 3)) : '<span class="stk empty"></span>';
-    return top(NT.board, nback()) + '<div class="stage"><div class="pad" style="text-align:center">' + say(n ? fmt(NT.stkHave, { n: n }) : NT.stkNone) +
+    for (i = 0; i < slots; i++) h += i < n ? '<span class="stkslot' + (i === n - 1 ? " newest" : "") + '" style="animation-delay:' + Math.min(i * 60, 1200) + 'ms">' + stk(N.stk[i], "t" + (i % 3)) + "</span>" : '<span class="stk empty"></span>';
+    return top(NT.board, nback()) + '<div class="stage fun">' + sparks() + '<div class="pad" style="text-align:center">' + say(n ? fmt(NT.stkHave, { n: n }) : NT.stkNone) +
       '<p class="hint">' + fmt(NT.stkKinds, { a: Object.keys(kinds).length, b: NUM.stickers.length }) + " · " + NT.stkHow + '</p><div class="stkgrid">' + h + "</div></div></div>";
   }
   function hideView(p) {
     var c = p.cur, a = c.n - c.b, deep = p.lv >= NUM.dotsHelpFrom, noDots = deep && !p.help, T = p.th[0], tn = p.th[1];
     var head = top(NT.games.hide[0], '<span class="hint">' + (p.doneN + (p.ph === "done" ? 0 : 1)) + " / " + (p.doneN + (p.ph === "done" ? 0 : 1) + p.q.length) + "</span>" + nback());
     if (p.ph === "done") return head + ndone("hide", NT.done, p);
-    if (p.ph === "show") return head + '<div class="stage"><div class="center">' + say(fmt(NT.hideShow, { n: c.n, t: tn })) + (noDots ? '<div class="eq">' + c.n + "</div>" : dots(c.n, null, false, T)) + '</div><div class="bar">' + (deep ? helpBtn(p) : "") + '<button class="big sun" data-a="n-hgo">' + NT.hideGo + "</button></div></div>";
-    var cup = '<div class="hside hcup">' + pal("bear", "pal-md") + '<span class="cup">?</span></div>';
+    if (p.ph === "show") return head + '<div class="stage"><div class="center">' + say(fmt(NT.hideShow, { n: c.n, t: tn })) + (noDots ? '<div class="eq">' + c.n + "</div>" : dots(c.n, null, false, T, once(p, "intro"))) + '</div><div class="bar">' + (deep ? helpBtn(p) : "") + '<button class="big sun" data-a="n-hgo">' + NT.hideGo + "</button></div></div>";
+    var cup = '<div class="hside hcup">' + pal("bear", "pal-md") + '<span class="cup' + (once(p, "wob") ? " wob" : "") + '">?</span></div>';
+    /* 숨기는 장면: 물건이 컵 속으로 쏙 들어간다 */
+    if (p.ph === "hiding") return head + '<div class="stage"><div class="center">' + say(fmt(NT.hideShow, { n: c.n, t: tn })) + '<div class="hrow"><div class="hside">' + dots(c.n, function (i) { return i >= c.b ? { c: "tocup" } : null; }, false, T) + "</div>" + cup + "</div></div></div>";
     if (p.ph === "ask") return head + '<div class="stage"><div class="center">' + say(NT.hideAsk) + '<div class="hrow"><div class="hside"><span class="hint">' + fmt(NT.hideSee, { t: tn }) + "</span>" + (noDots ? '<div class="eq">' + c.b + "</div>" : dots(c.b, null, false, T)) + "</div>" + cup + '</div><span class="hint">' + fmt(NT.hideAll, { n: c.n }) + "</span>" + nums(c.n) + "</div>" + (deep ? '<div class="bar">' + helpBtn(p) + "</div>" : "") + "</div>";
     /* 열어 보여 주기: 맞았으면 바로(곰이 폴짝), 틀렸으면 하나씩 세면서 */
-    var counting = p.ph === "count";
-    var hid = dots(a, function (i) { return p.counted ? (i < p.step ? { c: "was" + (counting && i === p.step - 1 ? " new" : ""), t: i + 1 } : { c: "ghost" }) : { c: "was" }; }, false, T);
-    return head + '<div class="stage"><div class="center">' + say(counting ? NT.countTogether : fmt(NT.split, { n: c.n, a: c.b, b: a }), fx(p)) + '<div class="hrow"><div class="hside">' + dots(c.b, null, false, T) + '</div><div class="hside">' + hid + "</div>" + (p.counted ? "" : '<div class="hside">' + pal("bear", "pal-md hop") + "</div>") + "</div>" +
+    var counting = p.ph === "count", first = fx(p);
+    var hid = dots(a, function (i) { return p.counted ? (i < p.step ? { c: "was" + (counting && i === p.step - 1 ? " new" : ""), t: i + 1 } : { c: "ghost" }) : { c: "was" }; }, false, T, first && !p.counted);
+    return head + '<div class="stage"><div class="center">' + say(counting ? NT.countTogether : fmt(NT.split, { n: c.n, a: c.b, b: a }), first) + '<div class="hrow"><div class="hside">' + dots(c.b, null, false, T) + '</div><div class="hside">' + hid + "</div>" + (p.counted ? "" : '<div class="hside">' + pal("bear", "pal-md hop") + "</div>") + "</div>" +
       '<span class="hint">' + fmt(NT.hideAll, { n: c.n }) + "</span></div>" + (counting ? "" : '<div class="bar">' + nextBtn() + "</div>") + "</div>";
   }
   function diceView(p) {
@@ -263,7 +284,7 @@
     var head = top(NT.games.dice[0], '<span class="hint">' + Math.min(p.asked + (p.ph === "ask" ? 1 : 0), NUM.roundDice) + " / " + NUM.roundDice + "</span>" + nback());
     if (p.ph === "done") return head + ndone("dice", p.pos >= NUM.board ? NT.diceGoal : NT.diceStop, p);
     /* 말판: 캠핑장(텐트)까지 가는 길 */
-    var board = '<div class="board">'; for (i = 0; i <= NUM.board; i++) board += '<span class="cell' + (i < p.pos ? " past" : i === p.pos ? " here" : "") + (i === NUM.board ? " goal" : "") + '">' + (i === p.pos ? pal("hamster", "runner") : i === NUM.board ? "⛺" : i && i % 5 === 0 ? i : "") + "</span>"; board += "</div>";
+    var board = '<div class="board">'; for (i = 0; i <= NUM.board; i++) board += '<span class="cell' + (i < p.pos ? " past" : i === p.pos ? " here" : "") + (i === NUM.board ? " goal" : "") + '">' + (i === p.pos ? pal("run", "runner" + (p.moving ? " step" : "")) : i === NUM.board ? "⛺" : i && i % 5 === 0 ? i : "") + "</span>"; board += "</div>";
     var bigAt = p.d[0] >= p.d[1] ? 0 : 1;
     function die(v, isBig) {
       if (!v) return '<span class="die q">?</span>';
@@ -273,12 +294,13 @@
       return h + "</span>";
     }
     var canRoll = p.ph === "roll" || p.ph === "zero", dice = die(p.d[0], bigAt === 0) + die(p.d[1], bigAt === 1);
-    dice = canRoll ? '<button class="dice" data-a="n-roll" aria-label="' + NT.diceRoll + '">' + dice + "</button>" : '<div class="dice">' + dice + "</div>";
+    dice = canRoll ? '<button class="dice" data-a="n-roll" aria-label="' + NT.diceRoll + '">' + dice + "</button>" : '<div class="dice' + (p.ph === "rolling" ? " spin" : "") + '">' + dice + "</div>";
     var eq = function (r) { return '<div class="eq">' + p.big + ' <i class="mn" aria-label="빼기"></i> ' + p.small + " = " + r + "</div>"; }, mid = "", bar = "";
     if (p.ph === "roll") mid = say(NT.diceRoll) + dice;
     if (p.ph === "zero") mid = say(NT.diceZero) + dice;
     if (p.ph === "ask") { mid = dice + eq("?") + nums(p.big); bar = helpBtn(p); }
-    if (p.ph === "right") { mid = say(fmt(NT.diceMove, { n: ans }), fx(p)) + dice + eq(ans); bar = nextBtn(); }
+    if (p.ph === "rolling") mid = say(NT.diceRoll) + dice;
+    if (p.ph === "right") { mid = say(fmt(NT.diceMove, { n: ans }), !p.moving && fx(p)) + dice + eq(ans); bar = p.moving ? "" : nextBtn(); }
     if (p.ph === "count" || p.ph === "open") {
       /* 큰 수만큼 물건을 놓고, 작은 수만큼 하나씩 줄을 긋고, 남은 것을 하나씩 센다 */
       var crossed = Math.min(p.step, p.small), counted = Math.max(0, p.step - p.small);
@@ -291,14 +313,15 @@
     var head = top(NT.games.rocket[0], nback());
     if (p.ph === "pick") return head + '<div class="stage"><div class="center">' + pal("dog", "pal-md") + say(NT.rocketPick) + '<div class="nums">' + NUM.rocket.map(function (n) { return '<button class="nbtn wide" data-a="n-rpick" data-v="' + n + '">' + fmt(NT.rocketFrom, { n: n }) + "</button>"; }).join("") + "</div></div></div>";
     var done = p.ph === "done", gauge = "", i; for (i = p.n; i >= 1; i--) gauge += '<i class="' + (i > p.next ? "on" : "") + '"></i>';
-    var bubs = p.order.map(function (v, k) { var gone = v > p.next; return '<button class="bub' + (gone ? " gone" : "") + (p.bad === v ? " shake" : "") + '" style="margin-top:' + p.off[k] + 'px" data-a="n-rb" data-v="' + v + '"' + (gone ? " disabled" : "") + "><b>" + v + "</b>" + dots(v, null, true) + "</button>"; }).join("");
-    return head + '<div class="stage"><div class="center">' + say(done ? NT.rocketGo : NT.rocketHint, done && fx(p)) + '<div class="rk"><div class="bubbles">' + bubs + '</div><div class="pad-r"><span class="rocket' + (done ? " fly" : "") + '" aria-hidden="true">🚀</span><span class="gauge">' + gauge + "</span></div></div></div>" +
+    var pop = once(p, "pop"), filled = p.n - p.next;
+    var bubs = p.order.map(function (v, k) { var gone = v > p.next; return '<button class="bub' + (gone ? " gone" : "") + (pop === v ? " popped" : "") + (p.bad === v ? " shake" : "") + '" style="margin-top:' + p.off[k] + 'px" data-a="n-rb" data-v="' + v + '"' + (gone ? " disabled" : "") + "><b>" + v + "</b>" + dots(v, null, true) + "</button>"; }).join("");
+    return head + '<div class="stage"><div class="center">' + say(done ? NT.rocketGo : NT.rocketHint, done && fx(p)) + (done ? timeRow(p) : "") + '<div class="rk"><div class="bubbles">' + bubs + '</div><div class="pad-r' + (filled && !done ? " rumble" : "") + '"><span class="ship' + (done ? " fly" : "") + '" style="--f:' + (filled / p.n).toFixed(2) + '">' + pal("rocket", "") + '<i class="flame"></i></span>' + (done ? '<span class="puffs" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></span>' : "") + '<span class="gauge">' + gauge + "</span></div></div></div>" +
       (done ? '<div class="bar"><span class="stamp" style="margin:0">' + NT.rocketGo + "</span>" + gotRow(p) + endBtns("rocket") + "</div>" : "") + "</div>";
   }
   function tenView(p) {
-    var done = p.ph === "done";
-    var cards = p.cards.map(function (c, i) { return '<button class="tc' + (c.gone ? " gone" : "") + (p.sel === i ? " sel" : "") + (p.bad && p.bad.indexOf(i) >= 0 ? " shake" : "") + '" data-a="n-tc" data-i="' + i + '"' + (c.gone ? " disabled" : "") + "><b>" + c.v + "</b>" + dots(10, function (k) { return k < c.v ? null : { c: "ghost" }; }, true) + "</button>"; }).join("");
-    return top(NT.games.ten[0], nback()) + '<div class="stage"><div class="center">' + say(p.last ? fmt(NT.tenPair, { a: p.last[0], b: p.last[1] }) : NT.tenHint, fx(p)) + (done ? pal("cat", "pal-md hop") : '<div class="tens">' + cards + "</div>") + "</div>" +
+    var done = p.ph === "done", zap = once(p, "zap") || [], first = fx(p);
+    var cards = p.cards.map(function (c, i) { return '<button class="tc' + (c.gone ? (zap.indexOf(i) >= 0 ? " zap" : " gone") : "") + (p.sel === i ? " sel" : "") + (p.bad && p.bad.indexOf(i) >= 0 ? " shake" : "") + '" data-a="n-tc" data-i="' + i + '"' + (c.gone ? " disabled" : "") + "><b>" + c.v + "</b>" + dots(10, function (k) { return k < c.v ? null : { c: "ghost" }; }, true) + "</button>"; }).join("");
+    return top(NT.games.ten[0], nback()) + '<div class="stage"><div class="center">' + say(p.last ? fmt(NT.tenPair, { a: p.last[0], b: p.last[1] }) : NT.tenHint, first) + (done ? timeRow(p) : "") + (first && p.last ? '<span class="tenpop" aria-hidden="true">10</span>' : "") + (done ? pal("card", "pal-lg hop") : '<div class="rk">' + pal("card", "pal-md tencat") + '<div class="tens">' + cards + "</div></div>") + "</div>" +
       (done ? '<div class="bar"><span class="stamp" style="margin:0">' + NT.done + "</span>" + gotRow(p) + endBtns("ten") + "</div>" : "") + "</div>";
   }
   function numReport() {
@@ -310,7 +333,7 @@
     var top5 = Object.keys(miss).sort(function (x, y) { return miss[y] - miss[x]; }).slice(0, 5).map(function (k) { return [k, miss[k]]; });
     var lvTxt = fmt(NT.levelName, { n: N.lv }) + " (" + fmt(NT.levelMax, { n: NUM.levels[N.lv - 1] }) + ")";
     var txt = NT.report + " (" + today() + ")\n지금 단계: " + lvTxt + "\n" + rows.map(function (r) { return r.name + ": " + r.days + "일 " + r.rounds + "판" + (r.tot ? ", 첫 시도 " + r.ok + "/" + r.tot : ""); }).join("\n") +
-      "\n스티커: " + N.stk.length + "개\n자주 틀린 빼기: " + (top5.length ? top5.map(function (m) { return m[0] + "(" + m[1] + "번)"; }).join(" ") : NT.none);
+      "\n스티커: " + N.stk.length + "개" + bestLine(N) + "\n자주 틀린 빼기: " + (top5.length ? top5.map(function (m) { return m[0] + "(" + m[1] + "번)"; }).join(" ") : NT.none);
     return { rows: rows, top5: top5, lvTxt: lvTxt, txt: txt };
   }
   function parentView() {
@@ -332,7 +355,11 @@
     if (a === "help") { p.help = true; return render(); }
     if (p.g === "hide") {
       c = p.cur;
-      if (a === "hgo" && p.ph === "show") p.ph = "ask";
+      if (a === "hgo" && p.ph === "show") {
+        /* 물건이 컵 속으로 들어가는 장면을 잠깐 보여 준 뒤 묻는다 */
+        if (CALM || (p.lv >= NUM.dotsHelpFrom && !p.help)) { p.ph = "ask"; p.wob = true; }
+        else { p.ph = "hiding"; later(p, 900, function () { if (p.ph === "hiding") { p.ph = "ask"; p.wob = true; render(); } }); }
+      }
       else if (a === "ans" && p.ph === "ask") {
         ok = v === c.n - c.b; if (!c.re) numLog("hide", c.n, c.b, ok);
         if (ok) { p.counted = false; p.ph = "open"; p.fx = true; }
@@ -345,35 +372,48 @@
       else if (a === "next" && p.ph === "open") {
         p.doneN++;
         if (!p.q.length) { p.ph = "done"; p.got = numPlayed("hide"); p.fx = true; }
-        else { p.cur = p.q.shift(); p.ph = "show"; p.help = false; p.counted = false; p.step = 0; }
+        else { p.cur = p.q.shift(); p.ph = "show"; p.help = false; p.counted = false; p.step = 0; p.intro = true; }
       }
       return render();
     }
     if (p.g === "dice") {
       if (a === "roll" && (p.ph === "roll" || p.ph === "zero")) {
-        if (p.pend.length && p.pend[0].wait <= 0) { c = p.pend.shift(); p.d = Math.random() < 0.5 ? [c.big, c.small] : [c.small, c.big]; p.re = true; }
-        else { p.d = [rnd(1, p.f1), rnd(1, p.f2)]; p.re = false; p.pend.forEach(function (x) { x.wait--; }); }
-        p.big = Math.max(p.d[0], p.d[1]); p.small = Math.min(p.d[0], p.d[1]); p.help = false; p.step = 0;
-        p.ph = p.big === p.small ? "zero" : "ask";
+        var fin;
+        if (p.pend.length && p.pend[0].wait <= 0) { c = p.pend.shift(); fin = Math.random() < 0.5 ? [c.big, c.small] : [c.small, c.big]; p.re = true; }
+        else { fin = [rnd(1, p.f1), rnd(1, p.f2)]; p.re = false; p.pend.forEach(function (x) { x.wait--; }); }
+        p.help = false; p.step = 0; p.ph = "rolling";
+        /* 주사위가 데굴데굴 구르다가 멈춘다 */
+        (function spin(k) {
+          if (k <= 0 || CALM) { p.d = fin; p.big = Math.max(fin[0], fin[1]); p.small = Math.min(fin[0], fin[1]); p.ph = p.big === p.small ? "zero" : "ask"; return render(); }
+          p.d = [rnd(1, p.f1), rnd(1, p.f2)]; render(); later(p, 90, function () { if (p.ph === "rolling") spin(k - 1); });
+        })(7);
+        return;
       }
       else if (a === "ans" && p.ph === "ask") {
         ok = v === p.big - p.small; if (!p.re) numLog("dice", p.big, p.small, ok); p.asked++;
-        if (ok) { p.pos = Math.min(NUM.board, p.pos + v); p.ph = "right"; p.fx = true; }
+        if (ok) {
+          /* 햄스터가 답만큼 한 칸씩 폴짝폴짝 뛰어간다 */
+          var to = Math.min(NUM.board, p.pos + v); p.ph = "right"; p.moving = true;
+          (function hop() {
+            if (p.pos >= to || CALM) { p.pos = to; p.moving = false; p.fx = true; return render(); }
+            later(p, 300, function () { if (p.ph !== "right" || !p.moving) return; p.pos++; render(); hop(); });
+          })();
+        }
         else {
           if (!p.re && p.retry < NUM.retryMax) { p.retry++; p.pend.push({ big: p.big, small: p.small, wait: rnd(1, 2) }); }
           p.ph = "count"; countUp(p, p.big, "open");
         }
       }
-      else if (a === "next" && (p.ph === "right" || p.ph === "open")) {
+      else if (a === "next" && !p.moving && (p.ph === "right" || p.ph === "open")) {
         if (p.pos >= NUM.board || p.asked >= NUM.roundDice) { p.ph = "done"; p.got = numPlayed("dice"); p.fx = true; }
         else { p.ph = "roll"; p.d = [0, 0]; p.help = false; }
       }
       return render();
     }
     if (p.g === "rocket") {
-      if (a === "rpick" && NUM.rocket.indexOf(v) >= 0) { var arr = []; for (i = 1; i <= v; i++) arr.push(i); p.n = v; p.next = v; p.order = shuffle(arr); p.off = arr.map(function () { return rnd(0, 22); }); p.bad = null; p.ph = "play"; }
+      if (a === "rpick" && NUM.rocket.indexOf(v) >= 0) { var arr = []; for (i = 1; i <= v; i++) arr.push(i); p.n = v; p.next = v; p.order = shuffle(arr); p.off = arr.map(function () { return rnd(0, 22); }); p.bad = null; p.ph = "play"; p.t0 = Date.now(); }
       else if (a === "rb" && p.ph === "play") {
-        if (v === p.next) { p.next--; p.bad = null; if (p.next === 0) { p.ph = "done"; p.got = numPlayed("rocket"); p.fx = true; } }
+        if (v === p.next) { p.pop = v; p.next--; p.bad = null; if (p.next === 0) { p.ph = "done"; clock(p, "rocket" + p.n); p.got = numPlayed("rocket"); p.fx = true; } }
         else p.bad = v;   /* 순서가 아니면 그 방울만 살짝 흔들린다 */
       }
       return render();
@@ -384,8 +424,8 @@
         if (p.sel === null) { p.sel = i; p.bad = null; }
         else if (p.sel === i) p.sel = null;
         else if (p.cards[p.sel].v + p.cards[i].v === 10) {
-          p.cards[p.sel].gone = p.cards[i].gone = true; p.last = [p.cards[p.sel].v, p.cards[i].v]; p.sel = null; p.bad = null; p.fx = true;
-          if (p.cards.every(function (x) { return x.gone; })) { p.ph = "done"; p.got = numPlayed("ten"); }
+          p.cards[p.sel].gone = p.cards[i].gone = true; p.zap = [p.sel, i]; p.last = [p.cards[p.sel].v, p.cards[i].v]; p.sel = null; p.bad = null; p.fx = true;
+          if (p.cards.every(function (x) { return x.gone; })) { p.ph = "done"; clock(p, "ten"); p.got = numPlayed("ten"); }
         }
         else { p.bad = [p.sel, i]; p.sel = null; }   /* 짝이 아니면 두 장이 살짝 흔들리고 제자리 */
       }
@@ -397,6 +437,7 @@
   function render() {
     app.innerHTML = ui.view === "check" ? diag() : ui.view === "play" ? play() : ui.view === "num" ? numView() : home();
     var cv = document.getElementById("cv"); if (cv) draw(cv);
+    var vd = app.querySelector("video"); if (vd) { try { vd.muted = true; var pr = vd.play(); if (pr && pr.catch) pr.catch(function () {}); } catch (e) {} }
   }
   function draw(cv) {
     var x = cv.getContext("2d"), on = false; x.lineWidth = 12; x.lineCap = "round"; x.lineJoin = "round"; x.strokeStyle = "#2b2118";

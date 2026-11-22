@@ -113,6 +113,7 @@ window.CONTENT = (function () {
       rocketPick: "어디서부터 셀까?", rocketFrom: "{n}부터", rocketHint: "큰 수부터 차례로 눌러요.", rocketGo: "발사!",
       diceRoll: "주사위를 눌러 굴려요.", diceZero: "0칸! 다시 굴리자.", diceMove: "{n}칸 앞으로!", diceGoal: "캠핑장에 도착!", diceStop: "여기까지 왔어요!",
       tenHint: "더해서 10이 되는 두 장을 눌러요.", tenPair: "{a와} {b은} 10",
+      timeTook: "{n}초 걸렸어요!", timeBest: "가장 빠른 기록 {n}초", timeNew: "새 기록!",
       done: "참 잘했어요!", again: "한 판 더", stop: "오늘은 여기까지", lvup: "더 큰 수로 해 볼까?",
       parent: "부모님 보기", level: "부모님: 단계 바꾸기", levelName: "{n}단계", levelMax: "{n}까지",
       report: "하은 수 놀이 기록", none: "아직 없음", copyHint: "아래 내용을 복사해 Claude에게 보내면 다음 놀이를 맞춰 드립니다."
