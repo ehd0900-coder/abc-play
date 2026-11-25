@@ -119,5 +119,20 @@ window.CONTENT = (function () {
       report: "하은 수 놀이 기록", none: "아직 없음", copyHint: "아래 내용을 복사해 Claude에게 보내면 다음 놀이를 맞춰 드립니다."
     }
   };
-  return { EBS: EBS, CHANT: CHANT, PIC: PIC, DAYS: DAYS, UP: UP, LOW: LOW, ML: ML, MR: MR, DICT: DICT, FIRST: FIRST, REVIEW: REVIEW, CVC: CVC, SIGHT: SIGHT, STEPS: STEPS, NUM: NUM };
+  /* 한 달 계획·문제풀이 화면 문구와 단어 그림. 문제 범위와 날짜는 data/plan-연-월.js 에 있다. */
+  var QZ = {
+    title: "하은이의 공부방", month: "{t} 계획대로 오늘도 한 걸음!", doors: "문 고르기", playground: "놀이터", quit: "그만하기",
+    doorTodo: "오늘 {n}문제", doorDone: "오늘 {a} / {n} 풀었어요",
+    setName: "오늘 문제", testName: "점검", setHint: "하은이가 직접 눌러서 풀어요.", start: "문제 풀기", again: "다시 풀기", lastScore: "처음 점수 {a} / {n}",
+    caseAsk: "같은 글자를 찾아요.", nextAsk: "네모에 들어갈 글자는?", firstAsk: "처음에 나는 소리 글자는?", pickAsk: "그림에 맞는 단어는?", readAsk: "읽고, 맞는 그림을 골라요.",
+    peek: "부모님: 소리가 안 나오면 누르고 읽어 주세요",
+    splitAsk: "몇일까요?", splitEq: "{n은} {a와}", subAsk: "빼면 몇일까요?", addAsk: "더하면 몇일까요?", tenAsk: "10이 되려면?",
+    right: "맞았어요!", look: "이렇게 돼요.", seeResult: "결과 보기",
+    score: "{n}문제 중에 {a}개 맞혔어요!", great: "참 잘했어요!", finished: "끝까지 했어요!", retry: "남은 {n}문제 다시", end: "끝",
+    copyHint: "월말에 이 내용을 복사해 Claude에게 보내면 다음 달 계획을 맞춰 드립니다.",
+    words: { cat: "🐱", hat: "🎩", bat: "🦇", map: "🗺️", bag: "👜", van: "🚐", can: "🥫", rat: "🐀", pan: "🍳", cap: "🧢",
+      bed: "🛏️", pen: "🖊️", hen: "🐔", ten: "🔟", red: "🔴", web: "🕸️", leg: "🦵", net: "🥅",
+      pig: "🐷", pin: "📌", six: "6️⃣", lip: "👄", kid: "🧒" }
+  };
+  return { EBS: EBS, CHANT: CHANT, PIC: PIC, DAYS: DAYS, UP: UP, LOW: LOW, ML: ML, MR: MR, DICT: DICT, FIRST: FIRST, REVIEW: REVIEW, CVC: CVC, SIGHT: SIGHT, STEPS: STEPS, NUM: NUM, QZ: QZ };
 })();

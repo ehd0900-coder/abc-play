@@ -4,7 +4,7 @@
   var URL0 = "https://ehd0900-coder.github.io/abc-play/";
   /* 버전. 고쳐서 올릴 때마다 이 값과 version.txt, index.html 의 ?v= 를 같이 바꾼다.
      열 때마다 서버의 version.txt 와 비교해서, 다르면(예전 파일이 기억돼 있으면) 한 번 새로 불러온다. */
-  var VER = "2026-11-22-5";
+  var VER = "2026-11-25-1";
   try { fetch("version.txt?t=" + Date.now(), { cache: "no-store" }).then(function (r) { return r.ok ? r.text() : ""; }).then(function (v) { v = v.trim(); if (v && v !== VER && sessionStorage.getItem("abc-ver-tried") !== v) { sessionStorage.setItem("abc-ver-tried", v); location.replace(location.pathname + "?v=" + encodeURIComponent(v) + location.hash); } }).catch(function () {}); } catch (e) {}
 
   var mem = { done: {}, diag: null, stars: 0 };
@@ -37,27 +37,12 @@
     else t = "정상입니다. 영어 음성 " + i.en + "개. 지금 “apple” 소리가 나야 합니다. 안 들리면 태블릿 미디어 음량을 확인하세요.";
     return t + " (기능 " + (i.has ? "있음" : "없음") + " · 음성 " + i.n + "개 · 영어 " + i.en + "개 · 앱 안 화면 " + (i.inapp ? "예" : "아니오") + ")";
   }
-  function go(v) { ui.view = v; ui.sub = null; try { location.hash = v === "home" ? "" : v; } catch (e) {} render(); }
+  function go(v) { ui.view = v; ui.sub = null; if (v === "eng" || v === "math") plEnter(v); try { location.hash = v === "home" ? "" : v; } catch (e) {} render(); }
   function top(title, right) { return '<div class="top"><h1>' + title + "</h1>" + (right || "") + "</div>"; }
   /* 친구들 그림. 꾸밈용이라 alt 는 비운다. */
   var PALS = { dog: [312, 440], bear: [284, 440], cat: [289, 440], hamster: [357, 440], friends: [900, 381], rocket: [255, 420], run: [287, 300], card: [346, 440], yay: [900, 342] };
   function pal(n, cls) { return '<img class="pal ' + cls + '" src="img/' + n + '.png" width="' + PALS[n][0] + '" height="' + PALS[n][1] + '" alt="" draggable="false">'; }
-  var HOMEBTN = '<button class="pill" data-a="home">처음으로</button>';
-
-  /* ---------- 홈 ---------- */
-  function home() {
-    var D = DAYS[ui.day], done = mem.done[D.k] || [];
-    var week = DAYS.map(function (d, i) { return '<button class="day' + (i === ui.day ? " on" : "") + (allDone(i) ? " done" : "") + '" data-a="day" data-i="' + i + '"><b>' + d.d + "</b><span>" + d.n + "</span></button>"; }).join("");
-    var steps = D.steps.map(function (s, i) {
-      var btn = s.link ? '<a class="do" href="' + s.link + '" target="_blank" rel="noopener">열기</a>' : s.act ? '<button class="do" data-a="' + s.act + '">시작</button>' : "";
-      return '<div class="step rise' + (done[i] ? " done" : "") + '" style="animation-delay:' + (i * 70) + 'ms"><button class="chk" data-a="chk" data-i="' + i + '" aria-label="' + esc(s.t) + ' 완료 표시">' + (done[i] ? "✓" : i + 1) + '</button><div class="txt"><b>' + s.t + "</b><span>" + s.m + "</span></div>" + btn + "</div>";
-    }).join("");
-    var si = sndInfo(), warn = (si.inapp || !si.has) ? '<div class="warnbox"><b>소리가 안 나오는 화면입니다.</b> 카카오톡 같은 앱 안에서 열면 소리가 막힙니다. 주소를 복사해 크롬이나 삼성 인터넷에 붙여 열어 주세요. <button class="small" data-a="cplink">주소 복사</button> <span class="abc" style="font-size:13px;word-break:break-all">' + URL0 + "</span></div>" : "";
-    var sndRow = '<p class="hint"><button class="small" data-a="snd">소리 점검</button> ' + (ui.snd ? esc(ui.snd) : "눌러서 이 태블릿에서 영어 소리가 나오는지 확인해요.") + "</p>";
-    return top("하은이의 영어 놀이", pal("friends", "pals") + '<button class="pill go numgo" data-a="num">' + NT.title + '</button><span class="pill">이번 주 글자 <span class="letters">' + D.L.toUpperCase().split("").join(" ") + "</span></span>") +
-      warn + '<div class="week">' + week + '</div><div class="stage"><div class="pad"><div class="steps">' + steps + (allDone(ui.day) ? '<div class="yay col">' + (once(ui, "fx") ? rain() + cheerFx() : "") + yayClip() + '<div class="stamp stampin">참 잘했어요!</div></div>' : "") +
-      '</div><p class="hint">다 한 것은 동그라미를 눌러 표시해요. 강의는 EBS 화면이 새로 열려요. 로그인한 뒤 강의목록에서 오늘 강의의 “강의보기”를 눌러 주세요.</p>' + sndRow + "</div></div>";
-  }
+  var HOMEBTN = '<button class="pill" data-a="eng">영어로</button>', MATHBTN = '<button class="pill" data-a="math">수학으로</button>';
 
   /* ---------- 진단 ---------- */
   function newDiag() { mem.diag = { s: 0, i: -1, res: {}, done: false }; save(); }
@@ -122,7 +107,7 @@
 
   /* ---------- 놀이 ---------- */
   function play() {
-    var L = DAYS[ui.day].L.split(""), p = ui.sub;
+    var L = curL().split(""), p = ui.sub;
     if (!p) return top("카드놀이", '<span class="stars">★ ' + mem.stars + "</span>" + HOMEBTN) + '<div class="stage"><div class="pad"><p class="hint" style="margin-top:0">오늘 글자: <span class="letters">' + L.join(" ").toUpperCase() + '</span> · 하고 싶은 놀이를 하은이가 골라요.</p><div class="games ng">' +
       '<button class="game" data-a="g" data-g="mem"><span class="gt"><b>짝 찾기</b><span>카드를 뒤집어 큰 글자와 작은 글자 짝을 찾아요.</span></span>' + pal("dog", "") + '</button>' +
       '<button class="game" data-a="g" data-g="first"><span class="gt"><b>첫소리 찾기</b><span>단어를 듣고 처음에 나는 소리 글자를 눌러요.</span></span>' + pal("hamster", "") + '</button>' +
@@ -148,15 +133,15 @@
     return "";
   }
   function startGame(g) {
-    var L = DAYS[ui.day].L.split("");
+    var L = curL().split("");
     if (g === "mem") { var set = shuffle(L).slice(0, 6); ui.sub = { g: g, open: [], lock: false, cards: shuffle(set.map(function (c) { return { ch: c.toUpperCase(), k: c }; }).concat(set.map(function (c) { return { ch: c, k: c }; }))) }; }
     if (g === "first") { ui.sub = { g: g, last: null }; newQ(); }
     if (g === "teach") { ui.sub = { g: g, ch: "" }; nextT(); }
     if (g === "rev") ui.sub = { g: g, q: shuffle(REVIEW), show: false };
   }
-  function newQ() { var L = DAYS[ui.day].L.split(""), p = ui.sub, a; do { a = L[Math.floor(Math.random() * L.length)]; } while (L.length > 1 && a === p.last); p.last = a;
+  function newQ() { var L = curL().split(""), p = ui.sub, a; do { a = L[Math.floor(Math.random() * L.length)]; } while (L.length > 1 && a === p.last); p.last = a;
     var others = shuffle(L.filter(function (c) { return c !== a; })).slice(0, 3); p.q = { ans: a, opts: shuffle([a].concat(others)), hit: null, bad: null }; }
-  function nextT() { var L = DAYS[ui.day].L.split(""), p = ui.sub, c; do { c = L[Math.floor(Math.random() * L.length)]; c = Math.random() < 0.5 ? c.toUpperCase() : c; } while (c === p.ch); p.ch = c; }
+  function nextT() { var L = curL().split(""), p = ui.sub, c; do { c = L[Math.floor(Math.random() * L.length)]; c = Math.random() < 0.5 ? c.toUpperCase() : c; } while (c === p.ch); p.ch = c; }
 
   /* ---------- 수 놀이 ----------
      원칙: 타이머·순위 없음. 틀렸다는 표시 없음(틀리면 물건을 하나씩 세어 보여 준다). 항상 물건(점) 그림이 같이 나온다.
@@ -268,7 +253,7 @@
   }
   function numMenu() {
     var N = numMem(), n = N.stk.length;
-    return top(NT.title, HOMEBTN) + '<div class="stage fun">' + sparks() + '<div class="pad"><p class="hint" style="margin-top:0">' + NT.menuHint + '</p><div class="games ng">' +
+    return top(NT.title, MATHBTN) + '<div class="stage fun">' + sparks() + '<div class="pad"><p class="hint" style="margin-top:0">' + NT.menuHint + '</p><div class="games ng">' +
       NGAMES.map(function (g, i) { return '<button class="game rise" style="animation-delay:' + (i * 90) + 'ms" data-a="n-g" data-g="' + g + '"><span class="gt"><b>' + NT.games[g][0] + "</b><span>" + NT.games[g][1] + "</span></span>" + pal(NPAL[g], "") + "</button>"; }).join("") +
       '</div><button class="stkbar" data-a="n-board"><b>' + NT.board + "</b><span>" + (n ? fmt(NT.stkCount, { n: n }) : NT.stkHow) + '</span><span class="stkrow">' + N.stk.slice(-6).map(function (s) { return stk(s, "sm"); }).join("") + "</span></button>" +
       '<div class="numfoot"><button class="small" data-a="n-parent">' + NT.parent + '</button><span class="parent">' + NT.level + "</span>" +
@@ -364,7 +349,7 @@
   /* 화면마다 배경 장면(sc-이름)과 떠다니는 꾸밈을 입힌다 */
   /* 영어 화면(홈, 글자 탐험, 카드놀이)에도 배경 장면을 입힌다. 진단 결과 화면은 읽기 좋게 흰 바탕 그대로 둔다. */
   function glam(h) {
-    var sc = ui.view === "check" ? (mem.diag && mem.diag.done ? "" : "check") : ui.view === "play" ? (ui.sub ? "play" : "playmenu") : "home";
+    var v = ui.view, p = ui.sub, sc = v === "check" ? (mem.diag && mem.diag.done ? "" : "check") : v === "play" ? (p ? "play" : "playmenu") : v === "eng" || v === "math" ? (!p ? (v === "eng" ? "check" : "menu") : p.g === "quiz" ? (p.ph === "done" ? "party" : v === "eng" ? "play" : "hide") : "") : "home";
     return sc ? h.replace('<div class="stage">', '<div class="stage fun sc-' + sc + '">' + decor(sc)) : h;
   }
   /* 맞혔을 때 화면 가운데서 터지는 효과 묶음 */
@@ -469,9 +454,176 @@
     }
   }
 
+  /* ---------- 한 달 계획과 문제풀이 ----------
+     영어와 수학은 문이 따로다. 과목마다 한 달 계획(data/plan-*.js)을 따라 하루 한 묶음씩 문제를 푼다.
+     기록은 haeun-eng 안의 plan 에만 쓴다: plan[계획 id][과목][날짜] = { n, ok, miss: [문제 열쇠], at, re, best } */
+  var PLAN = window.PLAN, QZ = C.QZ, SUBJ = { eng: { name: "영어", pal: "dog" }, math: { name: "수학", pal: "hamster" } };
+  var ABC = "abcdefghijklmnopqrstuvwxyz", CONF = ["bdpq", "mnhu", "ijlt", "ceoa", "vwyx", "gqy", "fkrs"];
+  function plMem(s) { var P = mem.plan; if (!P || typeof P !== "object" || Array.isArray(P)) P = mem.plan = {}; var M = P[PLAN.id]; if (!M || typeof M !== "object") M = P[PLAN.id] = {}; if (!M[s] || typeof M[s] !== "object") M[s] = {}; return M[s]; }
+  function plDays(s) { var a = []; PLAN[s].weeks.forEach(function (w, wi) { w.days.forEach(function (d) { d = typeof d === "string" ? { d: d } : d; a.push({ d: d.d, w: wi, name: d.name || "", set: d.set || w.set, todo: d.todo || [], L: d.L || w.L || "", test: !!d.test }); }); }); return a; }
+  function plDay(s, date) { return plDays(s).filter(function (x) { return x.d === date; })[0]; }
+  /* 오늘 할 날: 오늘이 계획에 있으면 오늘, 없으면(주말 등) 다음 날, 다 지났으면 마지막 날 */
+  function plToday(s) { var t = today(), ds = plDays(s); for (var i = 0; i < ds.length; i++) if (ds[i].d >= t) return ds[i]; return ds[ds.length - 1]; }
+  function plCount(day) { return day.set.reduce(function (n, x) { return n + x.n; }, 0); }
+  function plEnter(s) { var d = plToday(s); ui.subj = s; ui.pd = d.d; ui.pw = d.w; }
+  function curL() { var d = plToday("eng"); return (d && d.L) || DAYS[ui.day].L; }
+  function plOpts(ans, pool, n) { var seen = {}, o = shuffle(pool).filter(function (x) { if (x === ans || seen[x]) return false; seen[x] = 1; return true; }).slice(0, n - 1); return shuffle([ans].concat(o)); }
+  /* 문제 열쇠("sub:8-3", "first:h", "read:cat" …)에서 문제를 만든다. 틀린 문제를 다시 낼 때도 이 열쇠를 쓴다. */
+  function plItem(k, hide) {
+    var i = k.indexOf(":"), t = k.slice(0, i), v = k.slice(i + 1), m, it = { k: k, t: t, v: v, hide: !!hide }, low, pool, x;
+    if (t === "case") {
+      low = v.toLowerCase(); pool = ((CONF.filter(function (g) { return g.indexOf(low) >= 0; })[0] || "") + shuffle(ABC.split("")).join("")).split("");
+      x = plOpts(low, pool, 4); it.show = v; it.up = v !== low;
+      it.ans = it.up ? low : low.toUpperCase(); it.opts = x.map(function (c) { return it.up ? c : c.toUpperCase(); });
+    }
+    if (t === "first") { it.ans = v; it.opts = plOpts(v, Object.keys(PIC), 4); }
+    if (t === "next") { x = ABC.indexOf(v); it.ans = v; it.show = ABC[x - 1] + " □ " + ABC[x + 1]; it.opts = plOpts(v, ABC.slice(Math.max(0, x - 4), x + 5).split(""), 4); }
+    if (t === "read" || t === "pick") { it.ans = v; it.opts = plOpts(v, Object.keys(QZ.words), 3); }
+    if (t === "split" || t === "sub") { m = v.split("-"); it.n = +m[0]; it.b = +m[1]; it.ans = it.n - it.b; it.max = it.n; }
+    if (t === "add") { m = v.split("+"); it.a = +m[0]; it.b = +m[1]; it.ans = it.a + it.b; it.max = Math.min(10, Math.max(it.ans + 2, 6)); }
+    if (t === "ten") { it.n = +v; it.ans = 10 - it.n; it.max = 10; }
+    return it;
+  }
+  function plGen(spec) {
+    var t = spec.type, L = (spec.letters || "").split(""), n, b, c;
+    if (t === "case") { c = L[rnd(0, L.length - 1)]; return "case:" + (Math.random() < 0.5 ? c.toUpperCase() : c); }
+    if (t === "first") { L = L.filter(function (x) { return PIC[x]; }); return "first:" + L[rnd(0, L.length - 1)]; }
+    if (t === "next") { L = L.filter(function (x) { var i = ABC.indexOf(x); return i > 0 && i < 25; }); return "next:" + L[rnd(0, L.length - 1)]; }
+    if (t === "read" || t === "pick") return t + ":" + spec.words[rnd(0, spec.words.length - 1)];
+    if (t === "split" || t === "sub") { n = rnd(Math.max(2, spec.lo), spec.hi); b = rnd(1, n - 1); return t + ":" + n + "-" + b; }
+    if (t === "add") { n = rnd(Math.max(2, spec.lo), spec.hi); b = rnd(1, n - 1); return "add:" + (n - b) + "+" + b; }
+    return "ten:" + rnd(1, 9);
+  }
+  /* 그날의 문제 묶음을 만든다. review 는 그 주(또는 그 달)에 틀린 문제를 먼저 넣고, 모자라면 그 주 기본 묶음으로 채운다. */
+  function plBuild(s, day) {
+    var items = [], used = {}, R = plMem(s), W = PLAN[s].weeks[day.w];
+    function add(k, hide) { if (used[k]) return false; used[k] = 1; items.push(plItem(k, hide)); return true; }
+    function fill(spec, n) { for (var g = 0, made = 0; made < n && g < n * 30; g++) if (add(plGen(spec), spec.hide)) made++; }
+    day.set.forEach(function (spec) {
+      if (spec.type !== "review") return fill(spec, spec.n);
+      var keys = [], before = items.length;
+      plDays(s).forEach(function (d) { var r = R[d.d]; if (r && r.miss && d.d < day.d && (spec.month || d.w === day.w)) keys = keys.concat(r.miss); });
+      shuffle(keys).forEach(function (k) { if (items.length - before < spec.n) add(k); });
+      for (var g = 0; items.length - before < spec.n && g < 40; g++) { var base = W.set.filter(function (x) { return x.type !== "review"; }); if (!base.length) base = [{ type: s === "eng" ? "first" : "sub", letters: "abcdefgh", lo: 3, hi: 7, n: 1 }]; fill(base[g % base.length], 1); }
+    });
+    return shuffle(items);
+  }
+  function plStart(s, day, keys) {
+    var items = keys ? shuffle(keys).map(function (k) { return plItem(k); }) : plBuild(s, day);
+    ui.sub = { g: "quiz", s: s, d: day.d, items: items, i: 0, ph: "ask", res: [], pick: null, help: false, retry: !!keys, th: shuffle(NUM.things)[0] };
+  }
+
+  /* 첫 화면: 문 두 개 */
+  function home() {
+    var doors = ["eng", "math"].map(function (s) {
+      var d = plToday(s), r = plMem(s)[d.d];
+      return '<button class="door ' + s + '" data-a="' + s + '">' + pal(SUBJ[s].pal, "") + "<b>" + SUBJ[s].name + "</b><span>" + (r ? fmt(QZ.doorDone, { a: r.ok, n: r.n }) : fmt(QZ.doorTodo, { n: plCount(d) })) + "</span></button>";
+    }).join("");
+    return top(QZ.title, pal("friends", "pals")) + '<div class="stage"><div class="center">' + say(fmt(QZ.month, { t: PLAN.title })) + '<div class="doors">' + doors + "</div></div></div>";
+  }
+  /* 과목 화면: 이번 달 계획(주 → 날) + 그날 할 일 */
+  function plView(s) {
+    var P = PLAN[s], days = plDays(s), R = plMem(s), sel = plDay(s, ui.pd) || plToday(s), wi = ui.pw, t = today(), W = P.weeks[sel.w], r = R[sel.d], td = (R._todo || {})[sel.d] || [];
+    var weeks = P.weeks.map(function (w, i) { var ds = days.filter(function (d) { return d.w === i; }), dn = ds.filter(function (d) { return R[d.d]; }).length; return '<button class="wk' + (i === wi ? " on" : "") + (dn === ds.length ? " full" : "") + '" data-a="p-week" data-i="' + i + '"><b>' + w.name + "</b><span>" + dn + " / " + ds.length + "</span></button>"; }).join("");
+    var dayBtns = days.filter(function (d) { return d.w === wi; }).map(function (d) {
+      var x = R[d.d], dt = new Date(+d.d.slice(0, 4), +d.d.slice(5, 7) - 1, +d.d.slice(8));
+      return '<button class="day' + (d.d === sel.d ? " on" : "") + (x ? " done" : "") + (d.d === t ? " today" : "") + '" data-a="p-day" data-d="' + d.d + '"><b>' + "일월화수목금토"[dt.getDay()] + "</b><span>" + (dt.getMonth() + 1) + "/" + dt.getDate() + (x ? " · " + x.ok + "/" + x.n : d.d === t ? " · 오늘" : "") + "</span></button>";
+    }).join("");
+    var todo = sel.todo.map(function (x, i) {
+      var btn = x.link ? '<a class="do" href="' + (x.link === "EBS" ? EBS : x.link === "CHANT" ? CHANT : x.link) + '" target="_blank" rel="noopener">열기</a>' : x.act ? '<button class="do" data-a="' + x.act + '">시작</button>' : "";
+      return '<div class="step' + (td[i] ? " done" : "") + '"><button class="chk" data-a="p-chk" data-i="' + i + '" aria-label="' + esc(x.t) + ' 완료 표시">' + (td[i] ? "✓" : i + 1) + '</button><div class="txt"><b>' + x.t + "</b><span>" + x.m + "</span></div>" + btn + "</div>";
+    }).join("");
+    var quiz = '<div class="step quizstep' + (r ? " done" : "") + '"><span class="chk">' + (r ? "✓" : sel.todo.length + 1) + '</span><div class="txt"><b>' + (sel.name || (sel.test ? QZ.testName : QZ.setName)) + " · " + plCount(sel) + "문제</b><span>" + (r ? fmt(QZ.lastScore, { a: r.ok, n: r.n }) + (r.re ? " · 다시 푼 횟수 " + r.re : "") : QZ.setHint) + '</span></div><button class="do go" data-a="p-go">' + (r ? QZ.again : QZ.start) + "</button></div>";
+    return top(SUBJ[s].name, '<button class="pill" data-a="home">' + QZ.doors + "</button>") +
+      '<div class="weeks">' + weeks + '</div><div class="week">' + dayBtns + '</div><div class="stage"><div class="pad"><p class="goal"><b>' + PLAN.title + " 목표</b>" + P.goal + '</p><p class="goal wkgoal"><b>' + W.name + "</b>" + W.goal + '</p><div class="steps">' + todo + quiz + '</div><div class="numfoot">' +
+      '<button class="small" data-a="' + (s === "eng" ? "play" : "num") + '">' + QZ.playground + '</button><button class="small" data-a="p-parent">' + NT.parent + "</button>" +
+      (s === "eng" ? '<button class="small" data-a="check">글자 탐험</button><button class="small" data-a="snd">소리 점검</button>' + (ui.snd ? '<span class="hint">' + esc(ui.snd) + "</span>" : "") : "") + "</div></div></div>";
+  }
+  /* 문제 하나. 고르면 바로 정답을 초록으로 보여 주고(틀렸다는 표시는 없다), "다음"으로 넘어간다. */
+  function quizView(p) {
+    var it = p.items[p.i] || p.items[p.items.length - 1], S = SUBJ[p.s], fb = p.ph === "fb", ok = fb && p.res[p.i], body = "", bar = "", T = p.th[0];
+    var head = top(S.name + " 문제", '<span class="hint">' + Math.min(p.i + 1, p.items.length) + " / " + p.items.length + '</span><button class="pill" data-a="' + p.s + '">' + QZ.quit + "</button>");
+    if (p.ph === "done") return head + quizDone(p);
+    function mark(v) { return fb ? (String(v) === String(it.ans) ? " pop" : String(v) === String(p.pick) ? " dim" : " off") : ""; }
+    function choices(cls, label) { return '<div class="choices">' + it.opts.map(function (o) { return '<button class="choice' + (cls ? " " + cls : "") + mark(o) + '" data-a="q-ans" data-v="' + esc(o) + '"' + (fb ? " disabled" : "") + ">" + (label ? label(o) : esc(o)) + "</button>"; }).join("") + "</div>"; }
+    function qnums(max) { var h = '<div class="nums">'; for (var i = 0; i <= max; i++) h += '<button class="nbtn c' + (i % 6) + mark(i) + '" data-a="q-ans" data-v="' + i + '"' + (fb ? " disabled" : "") + ">" + i + "</button>"; return h + "</div>"; }
+    var cheer = fb && fx(p) ? cheerFx() : "", vis = !it.hide || p.help || fb, A = fb ? '<b class="ansb">' + it.ans + "</b>" : "?";
+    if (it.t === "case") body = say(QZ.caseAsk) + '<div class="abc qbig">' + it.show + "</div>" + choices();
+    if (it.t === "next") body = say(QZ.nextAsk) + '<div class="abc qmid">' + (fb ? it.show.replace("□", it.ans) : it.show) + "</div>" + choices();
+    if (it.t === "first") body = say(QZ.firstAsk) + '<div class="pic" aria-hidden="true">' + PIC[it.v][1] + '</div><div class="qrow"><button class="big sun" style="flex:none;padding:0 28px" data-a="say" data-w="' + PIC[it.v][0] + '">소리 듣기</button><button class="peek" data-peek="' + PIC[it.v][0] + '">' + QZ.peek + "</button></div>" + choices();
+    if (it.t === "pick") body = say(QZ.pickAsk) + '<div class="pic" aria-hidden="true">' + QZ.words[it.v] + "</div>" + choices("word");
+    if (it.t === "read") body = say(QZ.readAsk) + '<div class="abc qword">' + it.v + "</div>" + choices("emo", function (o) { return QZ.words[o]; });
+    if (it.t === "split") body = say(QZ.splitAsk) + '<div class="eq">' + fmt(QZ.splitEq, { n: it.n, a: it.b }) + " " + A + "</div>" + (vis ? '<div class="qpic">' + dots(it.n, function (i) { return i < it.b ? null : { c: fb ? "was" : "ghost" }; }, false, T) + "</div>" : "") + qnums(it.max);
+    if (it.t === "sub") body = say(QZ.subAsk) + '<div class="eq">' + it.n + ' <i class="mn" aria-label="빼기"></i> ' + it.b + " = " + A + "</div>" + (vis ? '<div class="qpic">' + dots(it.n, function (i) { return i >= it.n - it.b ? { c: "x" } : fb ? { c: "was", t: i + 1 } : null; }, false, T) + "</div>" : "") + qnums(it.max);
+    if (it.t === "add") body = say(QZ.addAsk) + '<div class="eq">' + it.a + " + " + it.b + " = " + A + "</div>" + (vis ? '<div class="qpic">' + dots(it.a, null, false, T) + '<span class="plus">+</span>' + dots(it.b, fb ? function () { return { c: "was" }; } : null, false, T) + "</div>" : "") + qnums(it.max);
+    if (it.t === "ten") body = say(QZ.tenAsk) + '<div class="eq">' + it.n + " + " + A + " = 10</div>" + (vis ? '<div class="qpic">' + dots(10, function (i) { return i < it.n ? null : { c: fb ? "was" : "ghost" }; }, false, T) + "</div>" : "") + qnums(it.max);
+    if (fb) bar = '<span class="fbmsg">' + (ok ? QZ.right : QZ.look) + '</span><button class="big sun" data-a="q-next">' + (p.i + 1 >= p.items.length ? QZ.seeResult : NT.next) + "</button>";
+    else if (it.hide && p.s === "math") bar = helpBtn(p);
+    return head + '<div class="stage"><div class="center">' + cheer + body + "</div>" + (bar ? '<div class="bar">' + bar + "</div>" : "") + "</div>";
+  }
+  function quizDone(p) {
+    var n = p.items.length, ok = p.res.filter(Boolean).length, miss = n - ok, first = fx(p), stars = "";
+    for (var i = 0; i < n; i++) stars += '<i class="' + (p.res[i] ? "on" : "") + '">★</i>';
+    return '<div class="stage"><div class="center">' + (first ? rain() + cheerFx() : "") + yayClip() + '<span class="stamp stampin">' + (ok >= n * 0.8 ? QZ.great : QZ.finished) + "</span>" + say(fmt(QZ.score, { n: n, a: ok })) + '<div class="qstars">' + stars + "</div>" + (p.got ? gotRow(p) : "") + '</div><div class="bar">' +
+      (miss ? '<button class="big no" data-a="q-retry">' + fmt(QZ.retry, { n: miss }) + "</button>" : "") + '<button class="big sun" data-a="' + p.s + '">' + QZ.end + "</button></div></div>";
+  }
+  function plKeyText(k) {
+    var i = k.indexOf(":"), t = k.slice(0, i), v = k.slice(i + 1), m = v.split(/[-+]/);
+    return t === "split" ? fmt(QZ.splitEq, { n: +m[0], a: +m[1] }) + " ?" : t === "sub" ? m[0] + " − " + m[1] : t === "add" ? m[0] + " + " + m[1] : t === "ten" ? v + " + ? = 10" : t === "case" ? v + " 짝" : t === "first" ? v + " 첫소리" : t === "next" ? v + " 순서" : v + (t === "read" ? " 읽기" : " 고르기");
+  }
+  function plReport(s) {
+    var R = plMem(s), days = plDays(s), miss = {}, tn = 0, tok = 0, dn = 0;
+    var weeks = PLAN[s].weeks.map(function (w, i) {
+      var ds = days.filter(function (d) { return d.w === i; }), did = ds.filter(function (d) { return R[d.d]; }), n = 0, ok = 0;
+      did.forEach(function (d) { var r = R[d.d]; n += r.n; ok += r.ok; (r.miss || []).forEach(function (k) { miss[k] = (miss[k] || 0) + 1; }); });
+      tn += n; tok += ok; dn += did.length;
+      return { name: w.name, goal: w.goal, days: ds.length, did: did.length, n: n, ok: ok };
+    });
+    var top = Object.keys(miss).sort(function (x, y) { return miss[y] - miss[x]; }).slice(0, 8).map(function (k) { return [plKeyText(k), miss[k]]; });
+    var test = days.filter(function (d) { return d.test && R[d.d]; }).map(function (d) { return d.name + " " + R[d.d].ok + "/" + R[d.d].n; });
+    var txt = "하은 " + SUBJ[s].name + " " + PLAN.title + " 기록 (" + today() + ")\n한 날: " + dn + " / " + days.length + "일, 첫 시도 " + tok + "/" + tn + "\n" +
+      weeks.map(function (w) { return w.name + ": " + w.did + "/" + w.days + "일" + (w.n ? ", " + w.ok + "/" + w.n : ""); }).join("\n") + (test.length ? "\n" + test.join(", ") : "") +
+      "\n자주 틀린 문제: " + (top.length ? top.map(function (m) { return m[0] + "(" + m[1] + "번)"; }).join(", ") : NT.none);
+    return { weeks: weeks, top: top, txt: txt, dn: dn, all: days.length, tn: tn, tok: tok };
+  }
+  function plParent(s) {
+    var R = plReport(s);
+    return top(SUBJ[s].name + " · " + NT.parent, '<button class="pill" data-a="' + s + '">' + SUBJ[s].name + '로</button>') + '<div class="stage"><div class="pad"><p class="parent">부모님용 · 처음 푼 점수만 셉니다. 다시 푼 것은 점수에 넣지 않습니다.</p><div class="result">' +
+      '<div class="rc"><small>' + PLAN.title + " 전체</small><b>" + R.dn + " / " + R.all + "일</b>" + (R.tn ? "<small>첫 시도 " + R.tok + " / " + R.tn + " (" + Math.round(R.tok * 100 / R.tn) + "%)</small>" : "") + "</div>" +
+      R.weeks.map(function (w) { return '<div class="rc"><small>' + w.name + " · " + w.goal + "</small><b>" + w.did + " / " + w.days + "일</b>" + (w.n ? "<small>" + w.ok + " / " + w.n + " (" + Math.round(w.ok * 100 / w.n) + "%)</small>" : "") + "</div>"; }).join("") +
+      '</div><div class="advice"><b style="font-family:var(--f-display);font-weight:400;font-size:22px">자주 틀린 문제</b><ul>' + (R.top.length ? R.top.map(function (m) { return '<li><span class="abc">' + esc(m[0]) + "</span> · " + m[1] + "번</li>"; }).join("") : "<li>" + NT.none + "</li>") +
+      '</ul></div><label for="rtxt" class="parent">' + QZ.copyHint + '</label><textarea id="rtxt" readonly>' + esc(R.txt) + '</textarea></div><div class="bar"><button class="big sun" data-a="copy">결과 복사</button></div></div>';
+  }
+  function subjView(s) { var p = ui.sub; return !p ? plView(s) : p.g === "quiz" ? quizView(p) : plParent(s); }
+  function plClick(a, b) {
+    var s = ui.subj, R = plMem(s), p = ui.sub, it, ok, r, miss, day;
+    if (a === "p-week") { ui.pw = +b.dataset.i; day = plDays(s).filter(function (d) { return d.w === ui.pw; }); ui.pd = (day.filter(function (d) { return d.d === today(); })[0] || day.filter(function (d) { return !R[d.d]; })[0] || day[0]).d; return render(); }
+    if (a === "p-day") { ui.pd = b.dataset.d; return render(); }
+    if (a === "p-chk") { var T = R._todo || (R._todo = {}), d = T[ui.pd] || (T[ui.pd] = []); d[+b.dataset.i] = !d[+b.dataset.i]; save(); return render(); }
+    if (a === "p-go") { plStart(s, plDay(s, ui.pd) || plToday(s)); return render(); }
+    if (a === "p-parent") { ui.sub = { g: "pparent" }; return render(); }
+    if (!p || p.g !== "quiz") return;
+    it = p.items[p.i];
+    if (a === "q-ans" && p.ph === "ask") {
+      ok = String(b.dataset.v) === String(it.ans); p.res[p.i] = ok; p.pick = b.dataset.v; p.ph = "fb"; if (ok) p.fx = true;
+      if (it.t === "read" || it.t === "pick") speak(it.v); else if (it.t === "first") speak(PIC[it.v][0]);
+      return render();
+    }
+    if (a === "q-next" && p.ph === "fb") {
+      p.i++; p.pick = null; p.help = false; p.ph = "ask";
+      if (p.i >= p.items.length) {
+        ok = p.res.filter(Boolean).length; miss = p.items.filter(function (x, i) { return !p.res[i]; }).map(function (x) { return x.k; });
+        if (!p.retry) { r = R[p.d]; if (!r) { R[p.d] = { n: p.items.length, ok: ok, miss: miss, at: today() }; p.got = giveSticker(); } else { r.re = (r.re || 0) + 1; r.last = ok; if (ok > (r.best || r.ok)) r.best = ok; } }
+        p.missKeys = miss; p.ph = "done"; p.fx = true; save();
+      }
+      return render();
+    }
+    if (a === "q-retry" && p.ph === "done" && p.missKeys && p.missKeys.length) { plStart(p.s, plDay(p.s, p.d) || plToday(p.s), p.missKeys); return render(); }
+  }
+
   /* ---------- 그리기 ---------- */
   function render() {
-    app.innerHTML = ui.view === "num" ? numView() : glam(ui.view === "check" ? diag() : ui.view === "play" ? play() : home());
+    app.innerHTML = ui.view === "num" ? numView() : glam(ui.view === "check" ? diag() : ui.view === "play" ? play() : ui.view === "eng" || ui.view === "math" ? subjView(ui.view) : home());
     var cv = document.getElementById("cv"); if (cv) draw(cv);
     document.body.className = "numview";
     var vd = app.querySelector("video"); if (vd) { try { vd.muted = true; var pr = vd.play(); if (pr && pr.catch) pr.catch(function () {}); } catch (e) {} }
@@ -492,13 +644,14 @@
     var b = e.target.closest("[data-a]"); if (!b) return;
     var a = b.dataset.a, g = mem.diag, S = g && STEPS[g.s], p = ui.sub;
     if (a === "home") return go("home");
-    if (a === "check" || a === "play" || a === "num") return go(a);
+    if (a === "check" || a === "play" || a === "num" || a === "eng" || a === "math") return go(a);
+    if (a.slice(0, 2) === "p-" || a.slice(0, 2) === "q-") return plClick(a, b);
     if (a.slice(0, 2) === "n-") return numClick(a.slice(2), b);
     if (a === "day") { ui.day = +b.dataset.i; return render(); }
     if (a === "chk") { var k = DAYS[ui.day].k, d = mem.done[k] || (mem.done[k] = []); d[+b.dataset.i] = !d[+b.dataset.i]; save(); if (d[+b.dataset.i] && allDone(ui.day)) ui.fx = true; return render(); }
     if (a === "dstart") { newDiag(); return render(); }
     if (a === "dredo") { mem.diag = null; save(); return render(); }
-    if (a === "dpause") { save(); return go("home"); }
+    if (a === "dpause") { save(); return go("eng"); }
     if (a === "dgo") { g.i = 0; save(); return render(); }
     if (a === "dskip") return nextStep();
     if (a === "j") { g.res[S.id][g.i] = b.dataset.v === "1"; return nextItem(); }
@@ -524,8 +677,8 @@
     if (a === "snd") { ui.snd = sndText(); if (sndInfo().en) speak("apple"); return render(); }
     if (a === "cplink") { try { navigator.clipboard.writeText(URL0).then(function () { b.textContent = "복사했어요"; }, function () { b.textContent = "옆 주소를 길게 눌러 복사"; }); } catch (err) { b.textContent = "옆 주소를 길게 눌러 복사"; } return; }
   });
-  window.addEventListener("hashchange", function () { var h = location.hash.replace("#", ""); var v = h === "check" || h === "play" || h === "num" ? h : "home"; if (v !== ui.view) { ui.view = v; ui.sub = null; render(); } });
-  try { speechSynthesis.onvoiceschanged = function () { if (ui.view === "home" && ui.snd) { ui.snd = sndText(); render(); } }; } catch (e) {}
-  var h0 = location.hash.replace("#", ""); if (h0 === "check" || h0 === "play" || h0 === "num") ui.view = h0;
+  window.addEventListener("hashchange", function () { var h = location.hash.replace("#", ""); var v = h === "check" || h === "play" || h === "num" || h === "eng" || h === "math" ? h : "home"; if (v !== ui.view) { ui.view = v; ui.sub = null; if (v === "eng" || v === "math") plEnter(v); render(); } });
+  try { speechSynthesis.onvoiceschanged = function () { if (ui.view === "eng" && ui.snd) { ui.snd = sndText(); render(); } }; } catch (e) {}
+  var h0 = location.hash.replace("#", ""); if (h0 === "check" || h0 === "play" || h0 === "num" || h0 === "eng" || h0 === "math") { ui.view = h0; if (h0 === "eng" || h0 === "math") plEnter(h0); }
   render();
 })();
