@@ -132,7 +132,8 @@ window.CONTENT = (function () {
     copyHint: "월말에 이 내용을 복사해 Claude에게 보내면 다음 달 계획을 맞춰 드립니다.",
     words: { cat: "🐱", hat: "🎩", bat: "🦇", map: "🗺️", bag: "👜", van: "🚐", can: "🥫", rat: "🐀", pan: "🍳", cap: "🧢",
       bed: "🛏️", pen: "🖊️", hen: "🐔", ten: "🔟", red: "🔴", web: "🕸️", leg: "🦵", net: "🥅",
-      pig: "🐷", pin: "📌", six: "6️⃣", lip: "👄", kid: "🧒" }
+      pig: "🐷", pin: "📌", six: "6️⃣", lip: "👄", kid: "🧒",
+      dog: "🐶", fox: "🦊", box: "📦", hot: "🔥", pot: "🍲", mop: "🧹", sun: "☀️", bus: "🚌", cup: "☕", bug: "🐛", nut: "🥜", tub: "🛁" }
   };
   return { EBS: EBS, CHANT: CHANT, PIC: PIC, DAYS: DAYS, UP: UP, LOW: LOW, ML: ML, MR: MR, DICT: DICT, FIRST: FIRST, REVIEW: REVIEW, CVC: CVC, SIGHT: SIGHT, STEPS: STEPS, NUM: NUM, QZ: QZ };
 })();

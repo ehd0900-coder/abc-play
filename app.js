@@ -4,7 +4,7 @@
   var URL0 = "https://ehd0900-coder.github.io/abc-play/";
   /* 버전. 고쳐서 올릴 때마다 이 값과 version.txt, index.html 의 ?v= 를 같이 바꾼다.
      열 때마다 서버의 version.txt 와 비교해서, 다르면(예전 파일이 기억돼 있으면) 한 번 새로 불러온다. */
-  var VER = "2026-11-25-1";
+  var VER = "2026-11-25-2";
   try { fetch("version.txt?t=" + Date.now(), { cache: "no-store" }).then(function (r) { return r.ok ? r.text() : ""; }).then(function (v) { v = v.trim(); if (v && v !== VER && sessionStorage.getItem("abc-ver-tried") !== v) { sessionStorage.setItem("abc-ver-tried", v); location.replace(location.pathname + "?v=" + encodeURIComponent(v) + location.hash); } }).catch(function () {}); } catch (e) {}
 
   var mem = { done: {}, diag: null, stars: 0 };
